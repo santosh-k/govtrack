@@ -153,7 +153,7 @@ export default function LoginScreen() {
                   style={styles.input}
                   placeholder="Enter your username"
                   placeholderTextColor={COLORS.textSecondary}
-                  value={username}
+                  value='testuser'
                   onChangeText={setUsername}
                   autoCapitalize="none"
                   autoCorrect={false}
@@ -176,7 +176,7 @@ export default function LoginScreen() {
                   style={[styles.input, styles.passwordInput]}
                   placeholder="Enter your password"
                   placeholderTextColor={COLORS.textSecondary}
-                  value={password}
+                  value='password'
                   onChangeText={setPassword}
                   secureTextEntry={!showPassword}
                   autoCapitalize="none"

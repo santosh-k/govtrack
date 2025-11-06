@@ -12,6 +12,9 @@ const COLORS = {
 export default function TabLayout() {
   const insets = useSafeAreaInsets();
 
+  // Reduce bottom padding by 10px, but ensure minimum of 8px
+  const adjustedBottomPadding = Math.max(insets.bottom - 10, 8);
+
   return (
     <Tabs
       screenOptions={{
@@ -22,8 +25,8 @@ export default function TabLayout() {
           backgroundColor: COLORS.tabBarBackground,
           borderTopWidth: 1,
           borderTopColor: COLORS.tabBarBorder,
-          height: 60 + insets.bottom,
-          paddingBottom: insets.bottom,
+          height: 60 + adjustedBottomPadding,
+          paddingBottom: adjustedBottomPadding,
           paddingTop: 8,
         },
         tabBarLabelStyle: {

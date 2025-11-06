@@ -6,6 +6,7 @@ import {
   SafeAreaView,
   StatusBar,
 } from 'react-native';
+import Header from '@/components/Header';
 
 const COLORS = {
   background: '#FDFDFD',
@@ -16,6 +17,7 @@ export default function DashboardScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor={COLORS.background} />
+      <Header />
 
       <View style={styles.content}>
         <Text style={styles.comingSoonText}>Coming Soon</Text>

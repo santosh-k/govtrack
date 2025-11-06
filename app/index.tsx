@@ -103,7 +103,7 @@ export default function LoginScreen() {
       if (username === 'testuser' && password === 'password') {
         // Success - navigate to dashboard
         setIsLoading(false);
-        router.replace('/(tabs)/dashboard');
+        router.replace('/(drawer)/(tabs)/dashboard');
       } else {
         // Failure - show error
         setIsLoading(false);

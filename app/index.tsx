@@ -10,6 +10,8 @@ import {
   KeyboardAvoidingView,
   Platform,
   Animated,
+  Keyboard,
+  TouchableWithoutFeedback,
 } from 'react-native';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -115,8 +117,9 @@ export default function LoginScreen() {
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       style={styles.container}
     >
-      <View style={styles.scrollContent}>
-        <View style={styles.contentContainer}>
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <View style={styles.scrollContent}>
+          <View style={styles.contentContainer}>
           {/* Logo Section */}
           <View style={styles.logoContainer}>
             <Image
@@ -220,7 +223,8 @@ export default function LoginScreen() {
             </TouchableOpacity>
           </View>
         </View>
-      </View>
+        </View>
+      </TouchableWithoutFeedback>
 
       {/* Toast Notification */}
       {showToast && error && (

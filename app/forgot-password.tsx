@@ -10,6 +10,8 @@ import {
   KeyboardAvoidingView,
   Platform,
   Animated,
+  Keyboard,
+  TouchableWithoutFeedback,
 } from 'react-native';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -112,8 +114,9 @@ export default function ForgotPasswordScreen() {
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       style={styles.container}
     >
-      <View style={styles.scrollContent}>
-        <View style={styles.contentContainer}>
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <View style={styles.scrollContent}>
+          <View style={styles.contentContainer}>
           {/* Logo Section */}
           <View style={styles.logoContainer}>
             <Image
@@ -181,7 +184,8 @@ export default function ForgotPasswordScreen() {
             </TouchableOpacity>
           </View>
         </View>
-      </View>
+        </View>
+      </TouchableWithoutFeedback>
 
       {/* Success Toast Notification */}
       {showToast && successMessage && (
@@ -213,7 +217,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     paddingHorizontal: 24,
-    paddingTop: 40,
+    paddingTop: 0,
     paddingBottom: 40,
   },
   contentContainer: {

@@ -169,7 +169,7 @@ export default function ForgotPasswordScreen() {
               {isLoading ? (
                 <ActivityIndicator color={COLORS.white} size="small" />
               ) : (
-                <Text style={styles.resetButtonText}>Send Reset Link</Text>
+                <Text style={styles.resetButtonText}>Receive Passwod</Text>
               )}
             </TouchableOpacity>
 

@@ -101,9 +101,9 @@ export default function LoginScreen() {
     setTimeout(() => {
       // Mock authentication check
       if (username === 'testuser' && password === 'password') {
-        // Success - navigate to dashboard
+        // Success - navigate to tabs
         setIsLoading(false);
-        router.push('/dashboard');
+        router.replace('/(tabs)');
       } else {
         // Failure - show error
         setIsLoading(false);
@@ -256,7 +256,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     paddingHorizontal: 24,
-    paddingTop: 40,
+    paddingTop: 20,
     paddingBottom: 40,
   },
   contentContainer: {
@@ -366,6 +366,7 @@ const styles = StyleSheet.create({
     color: COLORS.primary,
     textDecorationLine: 'underline',
     fontWeight: '500',
+    textAlign:'right',
   },
   toastContainer: {
     position: 'absolute',

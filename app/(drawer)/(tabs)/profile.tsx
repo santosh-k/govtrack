@@ -8,7 +8,7 @@ import {
   ScrollView,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import Header from '@/components/Header';
+import ProfileHeader from '@/components/ProfileHeader';
 
 const COLORS = {
   primary: '#FF851B', // Saffron/Orange
@@ -43,7 +43,7 @@ export default function ProfileScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor={COLORS.background} />
-      <Header title="My Profile" />
+      <ProfileHeader />
 
       <ScrollView
         style={styles.scrollView}

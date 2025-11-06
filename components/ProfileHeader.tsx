@@ -7,47 +7,38 @@ import {
   Platform,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { DrawerActions, useNavigation } from '@react-navigation/native';
+import { router } from 'expo-router';
 
 const COLORS = {
   background: '#FFFFFF',
   text: '#1A1A1A',
-  textSecondary: '#666666',
   border: '#E0E0E0',
   iconColor: '#1A1A1A',
 };
 
-interface HeaderProps {
-  title?: string;
-}
-
-export default function Header({ title }: HeaderProps) {
-  const navigation = useNavigation();
-
-  const openDrawer = () => {
-    navigation.dispatch(DrawerActions.openDrawer());
+export default function ProfileHeader() {
+  const handleBack = () => {
+    router.push('/(drawer)/(tabs)/dashboard');
   };
 
   return (
     <View style={styles.container}>
-      {/* Left: Hamburger Menu Icon */}
+      {/* Left: Back Arrow Icon */}
       <TouchableOpacity
-        style={styles.menuButton}
-        onPress={openDrawer}
+        style={styles.backButton}
+        onPress={handleBack}
         activeOpacity={0.6}
       >
-        <Ionicons name="menu" size={28} color={COLORS.iconColor} />
+        <Ionicons name="arrow-back" size={28} color={COLORS.iconColor} />
       </TouchableOpacity>
 
-      {/* Center: Title (optional) */}
-      {title && (
-        <View style={styles.titleContainer}>
-          <Text style={styles.title}>{title}</Text>
-        </View>
-      )}
+      {/* Center: Title */}
+      <View style={styles.titleContainer}>
+        <Text style={styles.title}>Profile</Text>
+      </View>
 
-      {/* Right: User Welcome */}
-      
+      {/* Right: Empty space for balance */}
+      <View style={styles.rightSpacer} />
     </View>
   );
 }
@@ -74,34 +65,20 @@ const styles = StyleSheet.create({
       },
     }),
   },
-  menuButton: {
+  backButton: {
     padding: 8,
     marginLeft: -8,
   },
   titleContainer: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
+    flex: 1,
     alignItems: 'center',
-    zIndex: -1,
   },
   title: {
     fontSize: 18,
     fontWeight: '600',
     color: COLORS.text,
   },
-  userContainer: {
-    alignItems: 'flex-end',
-  },
-  welcomeText: {
-    fontSize: 12,
-    color: COLORS.textSecondary,
-    fontWeight: '400',
-  },
-  userName: {
-    fontSize: 14,
-    color: COLORS.text,
-    fontWeight: '600',
-    marginTop: 2,
+  rightSpacer: {
+    width: 44, // Same width as back button for balance
   },
 });

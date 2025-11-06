@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   Text,
@@ -9,6 +9,7 @@ import {
   ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
+  Animated,
 } from 'react-native';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -30,14 +31,64 @@ export default function LoginScreen() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [showToast, setShowToast] = useState(false);
+
+  const slideAnim = useRef(new Animated.Value(100)).current;
+  const opacityAnim = useRef(new Animated.Value(0)).current;
+
+  // Toast animation effect
+  useEffect(() => {
+    if (showToast && error) {
+      // Slide up and fade in
+      Animated.parallel([
+        Animated.timing(slideAnim, {
+          toValue: 0,
+          duration: 300,
+          useNativeDriver: true,
+        }),
+        Animated.timing(opacityAnim, {
+          toValue: 1,
+          duration: 300,
+          useNativeDriver: true,
+        }),
+      ]).start();
+
+      // Auto-dismiss after 3 seconds
+      const timer = setTimeout(() => {
+        // Slide down and fade out
+        Animated.parallel([
+          Animated.timing(slideAnim, {
+            toValue: 100,
+            duration: 300,
+            useNativeDriver: true,
+          }),
+          Animated.timing(opacityAnim, {
+            toValue: 0,
+            duration: 300,
+            useNativeDriver: true,
+          }),
+        ]).start(() => {
+          setShowToast(false);
+          setError('');
+        });
+      }, 3000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [showToast, error, slideAnim, opacityAnim]);
+
+  const showErrorToast = (message: string) => {
+    setError(message);
+    setShowToast(true);
+    // Reset animation values
+    slideAnim.setValue(100);
+    opacityAnim.setValue(0);
+  };
 
   const handleLogin = async () => {
-    // Clear previous error
-    setError('');
-
     // Basic validation
     if (!username.trim() || !password.trim()) {
-      setError('Please enter both username and password.');
+      showErrorToast('Please enter both username and password.');
       return;
     }
 
@@ -54,7 +105,7 @@ export default function LoginScreen() {
       } else {
         // Failure - show error
         setIsLoading(false);
-        setError('Invalid Username or Password.');
+        showErrorToast('Invalid Username or password.');
       }
     }, 1500);
   };
@@ -143,14 +194,6 @@ export default function LoginScreen() {
               </View>
             </View>
 
-            {/* Error Message */}
-            {error ? (
-              <View style={styles.errorContainer}>
-                <Ionicons name="alert-circle" size={16} color={COLORS.error} />
-                <Text style={styles.errorText}>{error}</Text>
-              </View>
-            ) : null}
-
             {/* Login Button */}
             <TouchableOpacity
               style={[styles.loginButton, isLoading && styles.loginButtonDisabled]}
@@ -177,6 +220,24 @@ export default function LoginScreen() {
           </View>
         </View>
       </View>
+
+      {/* Toast Notification */}
+      {showToast && error && (
+        <Animated.View
+          style={[
+            styles.toastContainer,
+            {
+              transform: [{ translateY: slideAnim }],
+              opacity: opacityAnim,
+            },
+          ]}
+        >
+          <View style={styles.toastContent}>
+            <Ionicons name="alert-circle" size={20} color={COLORS.white} />
+            <Text style={styles.toastText}>{error}</Text>
+          </View>
+        </Animated.View>
+      )}
     </KeyboardAvoidingView>
   );
 }
@@ -268,21 +329,6 @@ const styles = StyleSheet.create({
     right: 16,
     padding: 4,
   },
-  errorContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#FFEBEE',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderRadius: 8,
-    marginBottom: 16,
-  },
-  errorText: {
-    fontSize: 14,
-    color: COLORS.error,
-    marginLeft: 8,
-    flex: 1,
-  },
   loginButton: {
     backgroundColor: COLORS.primary,
     height: 54,
@@ -315,5 +361,35 @@ const styles = StyleSheet.create({
     color: COLORS.primary,
     textDecorationLine: 'underline',
     fontWeight: '500',
+  },
+  toastContainer: {
+    position: 'absolute',
+    bottom: 40,
+    left: 24,
+    right: 24,
+    zIndex: 1000,
+  },
+  toastContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#2C2C2C',
+    paddingHorizontal: 20,
+    paddingVertical: 16,
+    borderRadius: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
+    borderLeftWidth: 4,
+    borderLeftColor: COLORS.error,
+  },
+  toastText: {
+    fontSize: 14,
+    color: COLORS.white,
+    marginLeft: 12,
+    flex: 1,
+    fontWeight: '500',
+    lineHeight: 20,
   },
 });

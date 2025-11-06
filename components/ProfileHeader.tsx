@@ -34,7 +34,7 @@ export default function ProfileHeader({ userData }: ProfileHeaderProps) {
   const handleEdit = () => {
     if (userData) {
       router.push({
-        pathname: '/(drawer)/(tabs)/profile-edit',
+        pathname: '/(drawer)/profile-edit',
         params: {
           fullName: userData.fullName,
           email: userData.email,

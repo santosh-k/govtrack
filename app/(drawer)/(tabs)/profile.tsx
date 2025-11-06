@@ -89,13 +89,6 @@ export default function ProfileScreen() {
             icon="location-outline"
           />
         </View>
-
-        {/* Save Button */}
-        <View style={styles.buttonContainer}>
-          <View style={styles.saveButton}>
-            <Text style={styles.saveButtonText}>Save Changes</Text>
-          </View>
-        </View>
       </ScrollView>
     </SafeAreaView>
   );
@@ -181,27 +174,5 @@ const styles = StyleSheet.create({
   },
   profileItemReduced: {
     marginBottom: 6,
-  },
-  buttonContainer: {
-    paddingHorizontal: 16,
-    marginTop: 8,
-  },
-  saveButton: {
-    backgroundColor: COLORS.primary,
-    height: 54,
-    borderRadius: 12,
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: COLORS.primary,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 6,
-  },
-  saveButtonText: {
-    fontSize: 17,
-    fontWeight: '700',
-    color: COLORS.white,
-    letterSpacing: 0.5,
   },
 });

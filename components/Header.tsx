@@ -7,8 +7,7 @@ import {
   Platform,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { DrawerActions } from '@react-navigation/native';
-import { useNavigation } from 'expo-router';
+import { DrawerActions, useNavigation } from '@react-navigation/native';
 
 const COLORS = {
   background: '#FFFFFF',

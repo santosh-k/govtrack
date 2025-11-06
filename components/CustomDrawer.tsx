@@ -42,8 +42,9 @@ export default function CustomDrawer(props: DrawerContentComponentProps) {
           <View style={styles.profilePicture}>
             <Ionicons name="person" size={48} color={COLORS.primary} />
           </View>
-          <Text style={styles.userName}>Test User</Text>
-          <Text style={styles.userDesignation}>Engineer</Text>
+          <Text style={styles.userName}>Er Sabir Ali , Assistant Engineer</Text>
+          <Text style={styles.userDivision}>HC&ND Elect Sub Division (M 4513)</Text>
+          <Text style={styles.userDepartment}>Public Works Department</Text>
         </View>
 
         {/* Menu Items */}
@@ -109,16 +110,26 @@ const styles = StyleSheet.create({
     borderColor: COLORS.primary,
   },
   userName: {
-    fontSize: 20,
-    fontWeight: '700',
+    fontSize: 16,
+    fontWeight: '600',
     color: COLORS.text,
-    marginTop: 4,
+    marginTop: 12,
+    textAlign: 'center',
+    paddingHorizontal: 8,
   },
-  userDesignation: {
-    fontSize: 14,
+  userDivision: {
+    fontSize: 13,
+    color: COLORS.textSecondary,
+    marginTop: 6,
+    textAlign: 'center',
+    paddingHorizontal: 8,
+  },
+  userDepartment: {
+    fontSize: 13,
     color: COLORS.textSecondary,
     marginTop: 4,
-    fontWeight: '500',
+    textAlign: 'center',
+    paddingHorizontal: 8,
   },
   menuSection: {
     paddingVertical: 16,

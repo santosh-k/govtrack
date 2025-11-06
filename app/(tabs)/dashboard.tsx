@@ -12,7 +12,7 @@ const COLORS = {
   text: '#1A1A1A',
 };
 
-export default function HomeScreen() {
+export default function DashboardScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor={COLORS.background} />

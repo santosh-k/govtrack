@@ -101,9 +101,9 @@ export default function LoginScreen() {
     setTimeout(() => {
       // Mock authentication check
       if (username === 'testuser' && password === 'password') {
-        // Success - navigate to tabs
+        // Success - navigate to dashboard
         setIsLoading(false);
-        router.replace('/(tabs)');
+        router.replace('/(tabs)/dashboard');
       } else {
         // Failure - show error
         setIsLoading(false);

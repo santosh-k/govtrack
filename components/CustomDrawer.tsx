@@ -34,7 +34,7 @@ export default function CustomDrawer(props: DrawerContentComponentProps) {
     // Close drawer first
     props.navigation.closeDrawer();
     // Navigate to profile screen
-    router.push('/(drawer)/(tabs)/profile');
+    router.push('/(drawer)/profile');
   };
 
   return (

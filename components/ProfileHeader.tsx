@@ -41,13 +41,14 @@ export default function ProfileHeader() {
         <Text style={styles.title}>Profile</Text>
       </View>
 
-      {/* Right: Edit Icon */}
+      {/* Right: Edit Text + Icon */}
       <TouchableOpacity
         style={styles.editButton}
         onPress={handleEdit}
         activeOpacity={0.6}
       >
-        <Ionicons name="pencil-outline" size={24} color={COLORS.iconColor} />
+        <Text style={styles.editText}>Edit</Text>
+        <Ionicons name="pencil-outline" size={18} color={COLORS.iconColor} />
       </TouchableOpacity>
     </View>
   );
@@ -89,7 +90,15 @@ const styles = StyleSheet.create({
     color: COLORS.text,
   },
   editButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
     padding: 8,
     marginRight: -8,
+  },
+  editText: {
+    fontSize: 16,
+    fontWeight: '500',
+    color: COLORS.text,
+    marginRight: 4,
   },
 });

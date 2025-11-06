@@ -25,7 +25,8 @@ export default function PlaceholderScreen() {
   const title = (params.title as string) || 'Coming Soon';
 
   const handleBack = () => {
-    router.back();
+    // Always navigate back to Settings screen
+    router.push('/(drawer)/settings');
   };
 
   return (

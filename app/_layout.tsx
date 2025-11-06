@@ -21,6 +21,13 @@ export default function RootLayout() {
           title: "Dashboard"
         }}
       />
+      <Stack.Screen
+        name="forgot-password"
+        options={{
+          headerShown: false,
+          title: "Reset Password"
+        }}
+      />
     </Stack>
   );
 }

@@ -21,16 +21,14 @@ const COLORS = {
   textSecondary: '#666666',
   inputBorder: '#CCCCCC',
   inputBorderActive: '#FF851B',
-  error: '#D32F2F',
+  success: '#4CAF50',
   white: '#FFFFFF',
 };
 
-export default function LoginScreen() {
+export default function ForgotPasswordScreen() {
   const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
   const [showToast, setShowToast] = useState(false);
 
   const slideAnim = useRef(new Animated.Value(100)).current;
@@ -38,7 +36,7 @@ export default function LoginScreen() {
 
   // Toast animation effect
   useEffect(() => {
-    if (showToast && error) {
+    if (showToast && successMessage) {
       // Slide up and fade in
       Animated.parallel([
         Animated.timing(slideAnim, {
@@ -53,7 +51,7 @@ export default function LoginScreen() {
         }),
       ]).start();
 
-      // Auto-dismiss after 3 seconds
+      // Auto-dismiss after 3 seconds and navigate back
       const timer = setTimeout(() => {
         // Slide down and fade out
         Animated.parallel([
@@ -69,26 +67,27 @@ export default function LoginScreen() {
           }),
         ]).start(() => {
           setShowToast(false);
-          setError('');
+          setSuccessMessage('');
+          // Navigate back to login screen
+          router.replace('/');
         });
       }, 3000);
 
       return () => clearTimeout(timer);
     }
-  }, [showToast, error, slideAnim, opacityAnim]);
+  }, [showToast, successMessage, slideAnim, opacityAnim]);
 
-  const showErrorToast = (message: string) => {
-    setError(message);
+  const showSuccessToast = (message: string) => {
+    setSuccessMessage(message);
     setShowToast(true);
     // Reset animation values
     slideAnim.setValue(100);
     opacityAnim.setValue(0);
   };
 
-  const handleLogin = async () => {
+  const handleSendResetLink = async () => {
     // Basic validation
-    if (!username.trim() || !password.trim()) {
-      showErrorToast('Please enter both username and password.');
+    if (!username.trim()) {
       return;
     }
 
@@ -97,17 +96,15 @@ export default function LoginScreen() {
 
     // Simulate API call delay
     setTimeout(() => {
-      // Mock authentication check
-      if (username === 'testuser' && password === 'password') {
-        // Success - navigate to dashboard
-        setIsLoading(false);
-        router.push('/dashboard');
-      } else {
-        // Failure - show error
-        setIsLoading(false);
-        showErrorToast('Invalid Username or password.');
-      }
+      setIsLoading(false);
+      showSuccessToast(
+        'If a matching account was found, reset instructions have been sent.'
+      );
     }, 1500);
+  };
+
+  const handleBackToLogin = () => {
+    router.back();
   };
 
   return (
@@ -128,9 +125,9 @@ export default function LoginScreen() {
 
           {/* Title Section */}
           <View style={styles.titleContainer}>
-            <Text style={styles.title}>Login</Text>
+            <Text style={styles.title}>Reset Password</Text>
             <Text style={styles.subtitle}>
-              Public Works Department, Delhi
+              Enter your username to receive reset instructions.
             </Text>
           </View>
 
@@ -159,71 +156,35 @@ export default function LoginScreen() {
               </View>
             </View>
 
-            {/* Password Input */}
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>Password</Text>
-              <View style={styles.inputWrapper}>
-                <Ionicons
-                  name="lock-closed-outline"
-                  size={20}
-                  color={COLORS.textSecondary}
-                  style={styles.inputIcon}
-                />
-                <TextInput
-                  style={[styles.input, styles.passwordInput]}
-                  placeholder="Enter your password"
-                  placeholderTextColor={COLORS.textSecondary}
-                  value={password}
-                  onChangeText={setPassword}
-                  secureTextEntry={!showPassword}
-                  autoCapitalize="none"
-                  autoCorrect={false}
-                  editable={!isLoading}
-                />
-                <TouchableOpacity
-                  onPress={() => setShowPassword(!showPassword)}
-                  style={styles.eyeIcon}
-                  disabled={isLoading}
-                >
-                  <Ionicons
-                    name={showPassword ? 'eye-outline' : 'eye-off-outline'}
-                    size={20}
-                    color={COLORS.textSecondary}
-                  />
-                </TouchableOpacity>
-              </View>
-            </View>
-
-            {/* Login Button */}
+            {/* Send Reset Link Button */}
             <TouchableOpacity
-              style={[styles.loginButton, isLoading && styles.loginButtonDisabled]}
-              onPress={handleLogin}
-              disabled={isLoading}
+              style={[styles.resetButton, isLoading && styles.resetButtonDisabled]}
+              onPress={handleSendResetLink}
+              disabled={isLoading || !username.trim()}
               activeOpacity={0.8}
             >
               {isLoading ? (
                 <ActivityIndicator color={COLORS.white} size="small" />
               ) : (
-                <Text style={styles.loginButtonText}>Login</Text>
+                <Text style={styles.resetButtonText}>Send Reset Link</Text>
               )}
             </TouchableOpacity>
 
-            {/* Forgot Password Link */}
+            {/* Back to Login Link */}
             <TouchableOpacity
-              style={styles.forgotPasswordContainer}
-              onPress={() => router.push('/forgot-password')}
+              style={styles.backToLoginContainer}
+              onPress={handleBackToLogin}
               activeOpacity={0.6}
             >
-              <Text style={styles.forgotPasswordText}>
-                Forgot your password?
-              </Text>
+              <Ionicons name="arrow-back" size={16} color={COLORS.primary} />
+              <Text style={styles.backToLoginText}>Back to Login</Text>
             </TouchableOpacity>
           </View>
         </View>
       </View>
 
-      {/* Toast Notification */}
-      {showToast && error && (
+      {/* Success Toast Notification */}
+      {showToast && successMessage && (
         <Animated.View
           style={[
             styles.toastContainer,
@@ -234,8 +195,8 @@ export default function LoginScreen() {
           ]}
         >
           <View style={styles.toastContent}>
-            <Ionicons name="alert-circle" size={20} color={COLORS.white} />
-            <Text style={styles.toastText}>{error}</Text>
+            <Ionicons name="checkmark-circle" size={20} color={COLORS.white} />
+            <Text style={styles.toastText}>{successMessage}</Text>
           </View>
         </Animated.View>
       )}
@@ -284,6 +245,8 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: COLORS.textSecondary,
     textAlign: 'center',
+    lineHeight: 20,
+    paddingHorizontal: 20,
   },
   formContainer: {
     width: '100%',
@@ -322,15 +285,7 @@ const styles = StyleSheet.create({
     color: COLORS.text,
     paddingVertical: 0,
   },
-  passwordInput: {
-    paddingRight: 40,
-  },
-  eyeIcon: {
-    position: 'absolute',
-    right: 16,
-    padding: 4,
-  },
-  loginButton: {
+  resetButton: {
     backgroundColor: COLORS.primary,
     height: 54,
     borderRadius: 12,
@@ -343,25 +298,27 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 6,
   },
-  loginButtonDisabled: {
-    opacity: 0.7,
+  resetButtonDisabled: {
+    opacity: 0.5,
   },
-  loginButtonText: {
+  resetButtonText: {
     fontSize: 17,
     fontWeight: '700',
     color: COLORS.white,
     letterSpacing: 0.5,
   },
-  forgotPasswordContainer: {
+  backToLoginContainer: {
     marginTop: 20,
     alignItems: 'center',
     paddingVertical: 8,
+    flexDirection: 'row',
+    justifyContent: 'center',
   },
-  forgotPasswordText: {
+  backToLoginText: {
     fontSize: 14,
     color: COLORS.primary,
-    textDecorationLine: 'underline',
     fontWeight: '500',
+    marginLeft: 6,
   },
   toastContainer: {
     position: 'absolute',
@@ -383,7 +340,7 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 8,
     borderLeftWidth: 4,
-    borderLeftColor: COLORS.error,
+    borderLeftColor: COLORS.success,
   },
   toastText: {
     fontSize: 14,

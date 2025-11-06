@@ -18,64 +18,65 @@ import { Ionicons } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from 'expo-router';
 
 const COLORS = {
-  primary: '#FF851B', // Saffron/Orange
-  background: '#FDFDFD',
+  primary: '#2196F3', // Blue
+  saffron: '#FF9800', // Saffron accent
+  background: '#F5F5F5', // Light gray background
+  cardBackground: '#FFFFFF', // White card
   text: '#1A1A1A',
   textSecondary: '#666666',
-  white: '#FFFFFF',
+  textLight: '#9E9E9E',
   border: '#E0E0E0',
-  inputBorder: '#CCCCCC',
-  inputBorderActive: '#FF851B',
+  inputBorder: '#E0E0E0',
+  inputBorderActive: '#2196F3',
   profileBg: '#E3F2FD',
-  profileBorder: '#2196F3',
   error: '#D32F2F',
   success: '#4CAF50',
 };
 
-interface InputFieldProps {
+interface ModernInputFieldProps {
   label: string;
   value: string;
   onChangeText: (text: string) => void;
-  icon: keyof typeof Ionicons.glyphMap;
   placeholder?: string;
   multiline?: boolean;
   error?: string;
   keyboardType?: 'default' | 'email-address';
 }
 
-function InputField({
+function ModernInputField({
   label,
   value,
   onChangeText,
-  icon,
   placeholder,
   multiline,
   error,
   keyboardType = 'default'
-}: InputFieldProps) {
+}: ModernInputFieldProps) {
+  const [isFocused, setIsFocused] = useState(false);
+
   return (
-    <View style={styles.inputGroup}>
-      <View style={styles.inputHeader}>
-        <Ionicons name={icon} size={20} color={COLORS.profileBorder} style={styles.inputIcon} />
-        <Text style={styles.inputLabel}>{label}</Text>
-      </View>
+    <View style={styles.inputContainer}>
+      <Text style={styles.inputLabel}>{label}</Text>
       <TextInput
         style={[
           styles.input,
           multiline && styles.inputMultiline,
+          isFocused && styles.inputFocused,
           error && styles.inputError
         ]}
         value={value}
         onChangeText={onChangeText}
         placeholder={placeholder}
-        placeholderTextColor={COLORS.textSecondary}
+        placeholderTextColor={COLORS.textLight}
         multiline={multiline}
-        numberOfLines={multiline ? 3 : 1}
+        numberOfLines={multiline ? 4 : 1}
         keyboardType={keyboardType}
+        onFocus={() => setIsFocused(true)}
+        onBlur={() => setIsFocused(false)}
       />
       {error && (
         <View style={styles.errorContainer}>
-          <Ionicons name="alert-circle" size={16} color={COLORS.error} />
+          <Ionicons name="alert-circle" size={14} color={COLORS.error} />
           <Text style={styles.errorText}>{error}</Text>
         </View>
       )}
@@ -204,7 +205,7 @@ export default function EditProfileScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor={COLORS.background} />
+      <StatusBar barStyle="dark-content" backgroundColor={COLORS.cardBackground} />
 
       {/* Header */}
       <View style={styles.header}>
@@ -234,61 +235,64 @@ export default function EditProfileScreen() {
           keyboardShouldPersistTaps="handled"
         >
           {/* Profile Picture Section */}
-          <View style={styles.profilePictureSection}>
-            <View style={styles.profilePicture}>
-              <Ionicons name="person" size={48} color={COLORS.profileBorder} />
+          <View style={styles.profileSection}>
+            <View style={styles.profilePictureWrapper}>
+              <View style={styles.profilePicture}>
+                <Ionicons name="person" size={60} color={COLORS.primary} />
+              </View>
+              {/* Edit Icon Button Overlay */}
+              <TouchableOpacity style={styles.editIconButton} activeOpacity={0.8}>
+                <Ionicons name="pencil" size={16} color="#FFFFFF" />
+              </TouchableOpacity>
             </View>
-            <TouchableOpacity style={styles.changePhotoButton} activeOpacity={0.7}>
-              <Ionicons name="camera" size={16} color={COLORS.primary} />
-              <Text style={styles.changePhotoText}>Change Photo</Text>
-            </TouchableOpacity>
+
+            {/* User Name and Designation */}
+            <Text style={styles.userName}>Er Sabir Ali</Text>
+            <Text style={styles.userDesignation}>Assistant Engineer</Text>
           </View>
 
-          {/* Edit Form */}
-          <View style={styles.formSection}>
-            <InputField
+          {/* White Form Card */}
+          <View style={styles.formCard}>
+            <ModernInputField
               label="Full Name"
               value={fullName}
               onChangeText={setFullName}
-              icon="person-outline"
               placeholder="Enter your full name"
               error={errors.fullName}
             />
-            <InputField
+
+            <ModernInputField
               label="Email Address"
               value={email}
               onChangeText={setEmail}
-              icon="mail-outline"
               placeholder="Enter your email"
               keyboardType="email-address"
               error={errors.email}
             />
-            <InputField
+
+            <ModernInputField
               label="Designation"
               value={designation}
               onChangeText={setDesignation}
-              icon="briefcase-outline"
               placeholder="Enter your designation"
             />
-            <InputField
+
+            <ModernInputField
               label="Department"
               value={department}
               onChangeText={setDepartment}
-              icon="business-outline"
               placeholder="Enter your department"
             />
-            <InputField
+
+            <ModernInputField
               label="Residential Address"
               value={address}
               onChangeText={setAddress}
-              icon="location-outline"
               placeholder="Enter your residential address"
               multiline={true}
             />
-          </View>
 
-          {/* Save Button */}
-          <View style={styles.buttonContainer}>
+            {/* Save Button - Inside Card */}
             <TouchableOpacity
               style={[styles.saveButton, isLoading && styles.saveButtonDisabled]}
               onPress={handleSave}
@@ -296,7 +300,7 @@ export default function EditProfileScreen() {
               activeOpacity={0.8}
             >
               {isLoading ? (
-                <ActivityIndicator color={COLORS.white} size="small" />
+                <ActivityIndicator color="#FFFFFF" size="small" />
               ) : (
                 <Text style={styles.saveButtonText}>Save Changes</Text>
               )}
@@ -317,7 +321,7 @@ export default function EditProfileScreen() {
           ]}
         >
           <View style={styles.toastContent}>
-            <Ionicons name="checkmark-circle" size={20} color={COLORS.white} />
+            <Ionicons name="checkmark-circle" size={20} color="#FFFFFF" />
             <Text style={styles.toastText}>{toastMessage}</Text>
           </View>
         </Animated.View>
@@ -335,7 +339,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: COLORS.white,
+    backgroundColor: COLORS.cardBackground,
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderBottomWidth: 1,
@@ -343,12 +347,12 @@ const styles = StyleSheet.create({
     ...Platform.select({
       ios: {
         shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.05,
-        shadowRadius: 4,
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.08,
+        shadowRadius: 3,
       },
       android: {
-        elevation: 2,
+        elevation: 3,
       },
     }),
   },
@@ -372,121 +376,162 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
-    paddingBottom: 24,
+    paddingBottom: 32,
   },
-  profilePictureSection: {
+  profileSection: {
     alignItems: 'center',
-    paddingVertical: 32,
+    paddingVertical: 40,
     paddingHorizontal: 24,
-    backgroundColor: COLORS.white,
-    borderBottomWidth: 1,
-    borderBottomColor: COLORS.border,
+    backgroundColor: COLORS.cardBackground,
+    marginBottom: 16,
+  },
+  profilePictureWrapper: {
+    position: 'relative',
+    marginBottom: 20,
   },
   profilePicture: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
+    width: 120,
+    height: 120,
+    borderRadius: 60,
     backgroundColor: COLORS.profileBg,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 16,
+    borderWidth: 4,
+    borderColor: COLORS.cardBackground,
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.15,
+        shadowRadius: 8,
+      },
+      android: {
+        elevation: 6,
+      },
+    }),
+  },
+  editIconButton: {
+    position: 'absolute',
+    bottom: 0,
+    right: 0,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: COLORS.saffron,
+    justifyContent: 'center',
+    alignItems: 'center',
     borderWidth: 3,
-    borderColor: COLORS.profileBorder,
+    borderColor: COLORS.cardBackground,
+    ...Platform.select({
+      ios: {
+        shadowColor: COLORS.saffron,
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.4,
+        shadowRadius: 4,
+      },
+      android: {
+        elevation: 4,
+      },
+    }),
   },
-  changePhotoButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 8,
-    paddingHorizontal: 16,
+  userName: {
+    fontSize: 22,
+    fontWeight: '700',
+    color: COLORS.text,
+    textAlign: 'center',
+    marginBottom: 6,
   },
-  changePhotoText: {
-    fontSize: 16,
+  userDesignation: {
+    fontSize: 15,
     fontWeight: '500',
-    color: COLORS.primary,
-    marginLeft: 6,
+    color: COLORS.textSecondary,
+    textAlign: 'center',
   },
-  formSection: {
-    marginTop: 16,
-    paddingHorizontal: 16,
+  formCard: {
+    backgroundColor: COLORS.cardBackground,
+    marginHorizontal: 16,
+    borderRadius: 16,
+    padding: 20,
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.08,
+        shadowRadius: 8,
+      },
+      android: {
+        elevation: 4,
+      },
+    }),
   },
-  inputGroup: {
-    backgroundColor: COLORS.white,
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 12,
-    borderWidth: 1,
-    borderColor: COLORS.border,
-  },
-  inputHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  inputIcon: {
-    marginRight: 8,
+  inputContainer: {
+    marginBottom: 24,
   },
   inputLabel: {
     fontSize: 13,
     fontWeight: '600',
     color: COLORS.textSecondary,
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
+    marginBottom: 8,
+    letterSpacing: 0.3,
   },
   input: {
     fontSize: 16,
-    fontWeight: '500',
+    fontWeight: '400',
     color: COLORS.text,
     paddingVertical: 12,
-    paddingHorizontal: 12,
-    backgroundColor: COLORS.background,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: COLORS.inputBorder,
-    marginLeft: 28,
+    paddingHorizontal: 0,
+    borderBottomWidth: 1.5,
+    borderBottomColor: COLORS.inputBorder,
+  },
+  inputFocused: {
+    borderBottomColor: COLORS.inputBorderActive,
   },
   inputMultiline: {
-    minHeight: 90,
+    minHeight: 80,
     textAlignVertical: 'top',
+    paddingTop: 8,
   },
   inputError: {
-    borderColor: COLORS.error,
-    borderWidth: 1.5,
+    borderBottomColor: COLORS.error,
+    borderBottomWidth: 2,
   },
   errorContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 8,
-    marginLeft: 28,
+    marginTop: 6,
   },
   errorText: {
-    fontSize: 13,
+    fontSize: 12,
     color: COLORS.error,
-    marginLeft: 6,
+    marginLeft: 4,
     fontWeight: '500',
   },
-  buttonContainer: {
-    paddingHorizontal: 16,
-    marginTop: 8,
-  },
   saveButton: {
-    backgroundColor: COLORS.primary,
-    height: 54,
+    backgroundColor: COLORS.saffron,
+    height: 52,
     borderRadius: 12,
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: COLORS.primary,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 6,
+    marginTop: 8,
+    ...Platform.select({
+      ios: {
+        shadowColor: COLORS.saffron,
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 8,
+      },
+      android: {
+        elevation: 6,
+      },
+    }),
   },
   saveButtonDisabled: {
-    opacity: 0.7,
+    opacity: 0.6,
   },
   saveButtonText: {
-    fontSize: 17,
+    fontSize: 16,
     fontWeight: '700',
-    color: COLORS.white,
+    color: '#FFFFFF',
     letterSpacing: 0.5,
   },
   toastContainer: {
@@ -511,7 +556,7 @@ const styles = StyleSheet.create({
   },
   toastText: {
     fontSize: 14,
-    color: COLORS.white,
+    color: '#FFFFFF',
     marginLeft: 12,
     flex: 1,
     fontWeight: '500',

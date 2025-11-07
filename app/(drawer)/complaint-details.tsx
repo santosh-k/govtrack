@@ -61,6 +61,7 @@ interface ComplaintDetails {
   reportedByName: string;
   reportedByContact: string;
   assignedTo?: string;
+  assignedToDesignation?: string;
   media: MediaItem[];
 }
 
@@ -80,6 +81,7 @@ const MOCK_COMPLAINT: ComplaintDetails = {
   reportedByName: 'neil sparx',
   reportedByContact: '5555555555',
   assignedTo: 'Er Sabir Ali', // Set to undefined or remove this line to test "Not Yet Assigned"
+  assignedToDesignation: 'Assistant Engineer',
   media: [
     {
       type: 'image',
@@ -292,19 +294,9 @@ export default function ComplaintDetailsScreen() {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        {/* Card 1: Complaint Details (Primary Card) */}
+        {/* Card 1: Complaint Details (Primary Card - Comprehensive Summary) */}
         <View style={[styles.card, styles.primaryCard]}>
-          {/* Status Badge */}
-          <View
-            style={[
-              styles.statusBadge,
-              { backgroundColor: getStatusColor(complaint.status) },
-            ]}
-          >
-            <Text style={styles.statusBadgeText}>{complaint.status}</Text>
-          </View>
-
-          {/* Subject */}
+          {/* Subject - Main Title */}
           <Text style={styles.subjectTitle}>{complaint.subject}</Text>
 
           {/* Location with Map Pin Icon */}
@@ -317,7 +309,17 @@ export default function ComplaintDetailsScreen() {
             <Text style={styles.locationLink}>{complaint.location}</Text>
           </TouchableOpacity>
 
-          {/* Sub-Details Grid */}
+          {/* Status Badge */}
+          <View
+            style={[
+              styles.statusBadge,
+              { backgroundColor: getStatusColor(complaint.status) },
+            ]}
+          >
+            <Text style={styles.statusBadgeText}>{complaint.status}</Text>
+          </View>
+
+          {/* Key Details Grid */}
           <View style={styles.detailsGrid}>
             <View style={styles.gridRow}>
               <GridItem label="Complaint Type" value={complaint.complaintType} />
@@ -327,6 +329,32 @@ export default function ComplaintDetailsScreen() {
               <GridItem label="Poll Number" value={complaint.pollNumber} />
               <View style={styles.gridItem} />
             </View>
+          </View>
+
+          {/* Separator Line */}
+          <View style={styles.primaryCardDivider} />
+
+          {/* Assignment Footer Section */}
+          <View style={styles.assignmentFooter}>
+            <Text style={styles.assignmentLabel}>Assigned To:</Text>
+            {complaint.assignedTo ? (
+              <View style={styles.assignedPersonContainer}>
+                <Ionicons name="person-circle-outline" size={24} color={COLORS.primary} />
+                <View style={styles.assignedPersonDetails}>
+                  <Text style={styles.assignedPersonName}>{complaint.assignedTo}</Text>
+                  {complaint.assignedToDesignation && (
+                    <Text style={styles.assignedPersonDesignation}>
+                      {complaint.assignedToDesignation}
+                    </Text>
+                  )}
+                </View>
+              </View>
+            ) : (
+              <View style={styles.notAssignedFooter}>
+                <Ionicons name="person-add-outline" size={18} color={COLORS.textLight} />
+                <Text style={styles.notAssignedFooterText}>Not Yet Assigned</Text>
+              </View>
+            )}
           </View>
         </View>
 
@@ -378,41 +406,17 @@ export default function ComplaintDetailsScreen() {
           </View>
         )}
 
-        {/* Card 4: People & Assignment */}
+        {/* Card 4: Complainant Information */}
         <View style={styles.card}>
-          <Text style={styles.cardTitle}>People & Assignment</Text>
+          <Text style={styles.cardTitle}>Reported By</Text>
 
           {/* Reported By Section */}
-          <View style={styles.peopleSection}>
-            <Text style={styles.peopleSectionLabel}>Reported By</Text>
-            <View style={styles.personInfo}>
-              <Ionicons name="person-circle-outline" size={24} color={COLORS.textSecondary} />
-              <View style={styles.personDetails}>
-                <Text style={styles.personName}>{complaint.reportedByName}</Text>
-                <Text style={styles.personContact}>{complaint.reportedByContact}</Text>
-              </View>
+          <View style={styles.personInfo}>
+            <Ionicons name="person-circle-outline" size={28} color={COLORS.textSecondary} />
+            <View style={styles.personDetails}>
+              <Text style={styles.personName}>{complaint.reportedByName}</Text>
+              <Text style={styles.personContact}>{complaint.reportedByContact}</Text>
             </View>
-          </View>
-
-          {/* Divider */}
-          <View style={styles.peopleDivider} />
-
-          {/* Assigned To Section */}
-          <View style={styles.peopleSection}>
-            <Text style={styles.peopleSectionLabel}>Assigned To</Text>
-            {complaint.assignedTo ? (
-              <View style={styles.personInfo}>
-                <Ionicons name="person-circle-outline" size={24} color={COLORS.primary} />
-                <View style={styles.personDetails}>
-                  <Text style={styles.personName}>{complaint.assignedTo}</Text>
-                </View>
-              </View>
-            ) : (
-              <View style={styles.notAssignedContainer}>
-                <Ionicons name="person-add-outline" size={20} color={COLORS.textLight} />
-                <Text style={styles.notAssignedText}>Not Yet Assigned</Text>
-              </View>
-            )}
           </View>
         </View>
 
@@ -545,7 +549,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 20,
-    marginBottom: 16,
+    marginBottom: 20,
   },
   statusBadgeText: {
     fontSize: 12,
@@ -558,14 +562,14 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: '700',
     color: COLORS.text,
-    marginBottom: 16,
+    marginBottom: 14,
     lineHeight: 32,
     letterSpacing: 0.2,
   },
   locationContainer: {
     flexDirection: 'row',
     alignItems: 'flex-start',
-    marginBottom: 24,
+    marginBottom: 20,
     gap: 8,
   },
   locationLink: {
@@ -626,6 +630,52 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: 'rgba(0, 0, 0, 0.3)',
+  },
+  primaryCardDivider: {
+    height: 1,
+    backgroundColor: COLORS.divider,
+    marginTop: 24,
+    marginBottom: 20,
+  },
+  assignmentFooter: {
+    gap: 12,
+  },
+  assignmentLabel: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: COLORS.textLight,
+    textTransform: 'uppercase',
+    letterSpacing: 0.8,
+  },
+  assignedPersonContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  assignedPersonDetails: {
+    flex: 1,
+  },
+  assignedPersonName: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: COLORS.text,
+    marginBottom: 3,
+  },
+  assignedPersonDesignation: {
+    fontSize: 14,
+    fontWeight: '400',
+    color: COLORS.textSecondary,
+  },
+  notAssignedFooter: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  notAssignedFooterText: {
+    fontSize: 14,
+    fontWeight: '400',
+    color: COLORS.textLight,
+    fontStyle: 'italic',
   },
   peopleSection: {
     marginBottom: 0,

@@ -11,8 +11,9 @@ import {
   Platform,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { router } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
 import Header from '@/components/Header';
+import FilterBottomSheet from '@/components/FilterBottomSheet';
 
 const COLORS = {
   background: '#F5F5F5',
@@ -21,9 +22,13 @@ const COLORS = {
   textSecondary: '#666666',
   textLight: '#9E9E9E',
   primary: '#2196F3',
-  saffron: '#FF9800', // Saffron accent
+  saffron: '#FF9800',
   border: '#E0E0E0',
   searchBg: '#F8F8F8',
+  filterActive: '#2196F3',
+  filterInactive: '#F5F5F5',
+  tagBackground: '#E3F2FD',
+  tagText: '#2196F3',
 
   // Status colors
   statusOpen: '#F44336',
@@ -35,10 +40,6 @@ const COLORS = {
   slaBreached: '#D32F2F',
   slaNearing: '#FF9800',
   slaOnTrack: '#4CAF50',
-
-  // Filter chip colors
-  chipActive: '#2196F3',
-  chipInactive: '#E0E0E0',
 
   // Attachment icon color
   attachmentIcon: '#9E9E9E',
@@ -144,28 +145,6 @@ const SAMPLE_COMPLAINTS: Complaint[] = [
   },
 ];
 
-type FilterType = 'All' | 'Open' | 'In Progress' | 'Resolved' | 'Breached';
-
-interface FilterChipProps {
-  label: string;
-  isActive: boolean;
-  onPress: () => void;
-}
-
-function FilterChip({ label, isActive, onPress }: FilterChipProps) {
-  return (
-    <TouchableOpacity
-      style={[styles.filterChip, isActive && styles.filterChipActive]}
-      onPress={onPress}
-      activeOpacity={0.7}
-    >
-      <Text style={[styles.filterChipText, isActive && styles.filterChipTextActive]}>
-        {label}
-      </Text>
-    </TouchableOpacity>
-  );
-}
-
 interface ComplaintCardProps {
   complaint: Complaint;
   onPress: () => void;
@@ -251,19 +230,77 @@ function ComplaintCard({ complaint, onPress }: ComplaintCardProps) {
 
 export default function ComplaintsScreen() {
   const [searchQuery, setSearchQuery] = useState('');
-  const [activeFilter, setActiveFilter] = useState<FilterType>('All');
+  const [filterSheetVisible, setFilterSheetVisible] = useState(false);
+
+  // Filter states
+  const [selectedStatuses, setSelectedStatuses] = useState<string[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState('');
+  const [selectedZone, setSelectedZone] = useState('');
+  const [selectedDepartment, setSelectedDepartment] = useState('');
+
+  // Temporary filter states (for the bottom sheet)
+  const [tempSelectedStatuses, setTempSelectedStatuses] = useState<string[]>([]);
+  const [tempSelectedCategory, setTempSelectedCategory] = useState('');
+  const [tempSelectedZone, setTempSelectedZone] = useState('');
+  const [tempSelectedDepartment, setTempSelectedDepartment] = useState('');
+
+  // Global selection state to pass to selection screens
+  const [pendingSelection, setPendingSelection] = useState<{
+    type: 'category' | 'zone' | 'department' | null;
+    value: string;
+  }>({ type: null, value: '' });
+
+  // Listen for changes when returning from selection screens
+  useFocusEffect(
+    React.useCallback(() => {
+      if (pendingSelection.type) {
+        switch (pendingSelection.type) {
+          case 'category':
+            setTempSelectedCategory(pendingSelection.value);
+            break;
+          case 'zone':
+            setTempSelectedZone(pendingSelection.value);
+            break;
+          case 'department':
+            setTempSelectedDepartment(pendingSelection.value);
+            break;
+        }
+        setPendingSelection({ type: null, value: '' });
+      }
+    }, [pendingSelection])
+  );
+
+  // Calculate active filter count
+  const activeFilterCount = useMemo(() => {
+    let count = selectedStatuses.length;
+    if (selectedCategory) count++;
+    if (selectedZone) count++;
+    if (selectedDepartment) count++;
+    return count;
+  }, [selectedStatuses, selectedCategory, selectedZone, selectedDepartment]);
 
   // Filter and search logic
   const filteredComplaints = useMemo(() => {
     let filtered = SAMPLE_COMPLAINTS;
 
-    // Apply filter
-    if (activeFilter !== 'All') {
-      if (activeFilter === 'Breached') {
-        filtered = filtered.filter((c) => c.sla === 'Breached');
-      } else {
-        filtered = filtered.filter((c) => c.status === activeFilter);
-      }
+    // Apply status filter
+    if (selectedStatuses.length > 0) {
+      filtered = filtered.filter((c) => selectedStatuses.includes(c.status));
+    }
+
+    // Apply category filter
+    if (selectedCategory) {
+      filtered = filtered.filter((c) => c.category === selectedCategory);
+    }
+
+    // Apply zone filter
+    if (selectedZone) {
+      filtered = filtered.filter((c) => c.department.includes(selectedZone));
+    }
+
+    // Apply department filter
+    if (selectedDepartment) {
+      filtered = filtered.filter((c) => c.department === selectedDepartment);
     }
 
     // Apply search
@@ -279,7 +316,7 @@ export default function ComplaintsScreen() {
     }
 
     return filtered;
-  }, [searchQuery, activeFilter]);
+  }, [searchQuery, selectedStatuses, selectedCategory, selectedZone, selectedDepartment]);
 
   const handleComplaintPress = (complaint: Complaint) => {
     router.push({
@@ -288,13 +325,93 @@ export default function ComplaintsScreen() {
     });
   };
 
+  const handleFilterPress = () => {
+    // Copy current filters to temp states
+    setTempSelectedStatuses([...selectedStatuses]);
+    setTempSelectedCategory(selectedCategory);
+    setTempSelectedZone(selectedZone);
+    setTempSelectedDepartment(selectedDepartment);
+    setFilterSheetVisible(true);
+  };
+
+  const handleStatusToggle = (status: string) => {
+    setTempSelectedStatuses((prev) => {
+      if (prev.includes(status)) {
+        return prev.filter((s) => s !== status);
+      } else {
+        return [...prev, status];
+      }
+    });
+  };
+
+  const handleCategoryPress = () => {
+    setPendingSelection({ type: 'category', value: tempSelectedCategory });
+    setFilterSheetVisible(false);
+    router.push({
+      pathname: '/(drawer)/select-category',
+      params: { selected: tempSelectedCategory },
+    });
+  };
+
+  const handleZonePress = () => {
+    setPendingSelection({ type: 'zone', value: tempSelectedZone });
+    setFilterSheetVisible(false);
+    router.push({
+      pathname: '/(drawer)/select-zone',
+      params: { selected: tempSelectedZone },
+    });
+  };
+
+  const handleDepartmentPress = () => {
+    setPendingSelection({ type: 'department', value: tempSelectedDepartment });
+    setFilterSheetVisible(false);
+    router.push({
+      pathname: '/(drawer)/select-department',
+      params: { selected: tempSelectedDepartment },
+    });
+  };
+
+  const handleApplyFilters = () => {
+    setSelectedStatuses([...tempSelectedStatuses]);
+    setSelectedCategory(tempSelectedCategory);
+    setSelectedZone(tempSelectedZone);
+    setSelectedDepartment(tempSelectedDepartment);
+    setFilterSheetVisible(false);
+  };
+
+  const handleResetFilters = () => {
+    setTempSelectedStatuses([]);
+    setTempSelectedCategory('');
+    setTempSelectedZone('');
+    setTempSelectedDepartment('');
+  };
+
+  const handleRemoveFilter = (filterType: 'status' | 'category' | 'zone' | 'department', value?: string) => {
+    switch (filterType) {
+      case 'status':
+        if (value) {
+          setSelectedStatuses((prev) => prev.filter((s) => s !== value));
+        }
+        break;
+      case 'category':
+        setSelectedCategory('');
+        break;
+      case 'zone':
+        setSelectedZone('');
+        break;
+      case 'department':
+        setSelectedDepartment('');
+        break;
+    }
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor={COLORS.cardBackground} />
       <Header title="Complaints" />
 
-      {/* Search Bar */}
-      <View style={styles.searchContainer}>
+      {/* Search and Filter Bar */}
+      <View style={styles.searchFilterContainer}>
         <View style={styles.searchBar}>
           <Ionicons name="search" size={20} color={COLORS.textLight} style={styles.searchIcon} />
           <TextInput
@@ -310,42 +427,95 @@ export default function ComplaintsScreen() {
             </TouchableOpacity>
           )}
         </View>
+
+        {/* Filter Button */}
+        <TouchableOpacity
+          style={[
+            styles.filterButton,
+            activeFilterCount > 0 && styles.filterButtonActive,
+          ]}
+          onPress={handleFilterPress}
+          activeOpacity={0.7}
+        >
+          <Ionicons
+            name="filter"
+            size={20}
+            color={activeFilterCount > 0 ? COLORS.cardBackground : COLORS.text}
+          />
+          <Text
+            style={[
+              styles.filterButtonText,
+              activeFilterCount > 0 && styles.filterButtonTextActive,
+            ]}
+          >
+            Filter{activeFilterCount > 0 ? ` (${activeFilterCount})` : ''}
+          </Text>
+        </TouchableOpacity>
       </View>
 
-      {/* Filter Chips */}
-      <View style={styles.filterContainer}>
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.filterScrollContent}
-        >
-          <FilterChip
-            label="All"
-            isActive={activeFilter === 'All'}
-            onPress={() => setActiveFilter('All')}
-          />
-          <FilterChip
-            label="Status: Open"
-            isActive={activeFilter === 'Open'}
-            onPress={() => setActiveFilter('Open')}
-          />
-          <FilterChip
-            label="Status: In Progress"
-            isActive={activeFilter === 'In Progress'}
-            onPress={() => setActiveFilter('In Progress')}
-          />
-          <FilterChip
-            label="Status: Resolved"
-            isActive={activeFilter === 'Resolved'}
-            onPress={() => setActiveFilter('Resolved')}
-          />
-          <FilterChip
-            label="SLA: Breached"
-            isActive={activeFilter === 'Breached'}
-            onPress={() => setActiveFilter('Breached')}
-          />
-        </ScrollView>
-      </View>
+      {/* Active Filter Tags */}
+      {activeFilterCount > 0 && (
+        <View style={styles.activeFiltersContainer}>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.activeFiltersScrollContent}
+          >
+            {selectedStatuses.map((status) => (
+              <View key={status} style={styles.filterTag}>
+                <Text style={styles.filterTagText}>Status: {status}</Text>
+                <TouchableOpacity
+                  onPress={() => handleRemoveFilter('status', status)}
+                  activeOpacity={0.6}
+                  hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                >
+                  <Ionicons name="close-circle" size={16} color={COLORS.tagText} />
+                </TouchableOpacity>
+              </View>
+            ))}
+            {selectedCategory && (
+              <View style={styles.filterTag}>
+                <Text style={styles.filterTagText} numberOfLines={1}>
+                  Category: {selectedCategory}
+                </Text>
+                <TouchableOpacity
+                  onPress={() => handleRemoveFilter('category')}
+                  activeOpacity={0.6}
+                  hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                >
+                  <Ionicons name="close-circle" size={16} color={COLORS.tagText} />
+                </TouchableOpacity>
+              </View>
+            )}
+            {selectedZone && (
+              <View style={styles.filterTag}>
+                <Text style={styles.filterTagText}>Zone: {selectedZone}</Text>
+                <TouchableOpacity
+                  onPress={() => handleRemoveFilter('zone')}
+                  activeOpacity={0.6}
+                  hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                >
+                  <Ionicons name="close-circle" size={16} color={COLORS.tagText} />
+                </TouchableOpacity>
+              </View>
+            )}
+            {selectedDepartment && (
+              <View style={styles.filterTag}>
+                <Text style={styles.filterTagText} numberOfLines={1}>
+                  Department: {selectedDepartment}
+                </Text>
+                <TouchableOpacity
+                  onPress={() => handleRemoveFilter('department')}
+                  activeOpacity={0.6}
+                  hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                >
+                  <Ionicons name="close-circle" size={16} color={COLORS.tagText} />
+                </TouchableOpacity>
+              </View>
+            )}
+          </ScrollView>
+        </View>
+      )}
 
       {/* Complaints List */}
       <ScrollView
@@ -371,6 +541,22 @@ export default function ComplaintsScreen() {
           </View>
         )}
       </ScrollView>
+
+      {/* Filter Bottom Sheet */}
+      <FilterBottomSheet
+        visible={filterSheetVisible}
+        onClose={() => setFilterSheetVisible(false)}
+        selectedStatuses={tempSelectedStatuses}
+        selectedCategory={tempSelectedCategory}
+        selectedZone={tempSelectedZone}
+        selectedDepartment={tempSelectedDepartment}
+        onStatusToggle={handleStatusToggle}
+        onCategoryPress={handleCategoryPress}
+        onZonePress={handleZonePress}
+        onDepartmentPress={handleDepartmentPress}
+        onApply={handleApplyFilters}
+        onReset={handleResetFilters}
+      />
     </SafeAreaView>
   );
 }
@@ -380,14 +566,17 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: COLORS.background,
   },
-  searchContainer: {
+  searchFilterContainer: {
+    flexDirection: 'row',
     backgroundColor: COLORS.cardBackground,
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderBottomWidth: 1,
     borderBottomColor: COLORS.border,
+    gap: 8,
   },
   searchBar: {
+    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: COLORS.searchBg,
@@ -406,36 +595,53 @@ const styles = StyleSheet.create({
     color: COLORS.text,
     paddingVertical: 0,
   },
-  filterContainer: {
+  filterButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: COLORS.filterInactive,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    gap: 6,
+  },
+  filterButtonActive: {
+    backgroundColor: COLORS.filterActive,
+    borderColor: COLORS.filterActive,
+  },
+  filterButtonText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: COLORS.text,
+  },
+  filterButtonTextActive: {
+    color: COLORS.cardBackground,
+  },
+  activeFiltersContainer: {
     backgroundColor: COLORS.cardBackground,
     borderBottomWidth: 1,
     borderBottomColor: COLORS.border,
-    paddingVertical: 12,
+    paddingVertical: 8,
   },
-  filterScrollContent: {
+  activeFiltersScrollContent: {
     paddingHorizontal: 16,
     gap: 8,
   },
-  filterChip: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 20,
-    backgroundColor: COLORS.chipInactive,
-    borderWidth: 1,
-    borderColor: COLORS.border,
-    marginRight: 8,
+  filterTag: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: COLORS.tagBackground,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 16,
+    gap: 6,
+    maxWidth: 200,
   },
-  filterChipActive: {
-    backgroundColor: COLORS.chipActive,
-    borderColor: COLORS.chipActive,
-  },
-  filterChipText: {
-    fontSize: 14,
+  filterTagText: {
+    fontSize: 13,
     fontWeight: '600',
-    color: COLORS.textSecondary,
-  },
-  filterChipTextActive: {
-    color: COLORS.cardBackground,
+    color: COLORS.tagText,
   },
   scrollView: {
     flex: 1,

@@ -11,7 +11,7 @@ import {
   Platform,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { router, useFocusEffect } from 'expo-router';
+import { router } from 'expo-router';
 import Header from '@/components/Header';
 import FilterBottomSheet from '@/components/FilterBottomSheet';
 
@@ -244,32 +244,6 @@ export default function ComplaintsScreen() {
   const [tempSelectedZone, setTempSelectedZone] = useState('');
   const [tempSelectedDepartment, setTempSelectedDepartment] = useState('');
 
-  // Global selection state to pass to selection screens
-  const [pendingSelection, setPendingSelection] = useState<{
-    type: 'category' | 'zone' | 'department' | null;
-    value: string;
-  }>({ type: null, value: '' });
-
-  // Listen for changes when returning from selection screens
-  useFocusEffect(
-    React.useCallback(() => {
-      if (pendingSelection.type) {
-        switch (pendingSelection.type) {
-          case 'category':
-            setTempSelectedCategory(pendingSelection.value);
-            break;
-          case 'zone':
-            setTempSelectedZone(pendingSelection.value);
-            break;
-          case 'department':
-            setTempSelectedDepartment(pendingSelection.value);
-            break;
-        }
-        setPendingSelection({ type: null, value: '' });
-      }
-    }, [pendingSelection])
-  );
-
   // Calculate active filter count
   const activeFilterCount = useMemo(() => {
     let count = selectedStatuses.length;
@@ -345,7 +319,14 @@ export default function ComplaintsScreen() {
   };
 
   const handleCategoryPress = () => {
-    setPendingSelection({ type: 'category', value: tempSelectedCategory });
+    // Set global callback to receive selection
+    global.filterSelectionCallback = (type: string, value: string) => {
+      if (type === 'category') {
+        setTempSelectedCategory(value);
+        // Re-open the filter sheet
+        setTimeout(() => setFilterSheetVisible(true), 100);
+      }
+    };
     setFilterSheetVisible(false);
     router.push({
       pathname: '/(drawer)/select-category',
@@ -354,7 +335,14 @@ export default function ComplaintsScreen() {
   };
 
   const handleZonePress = () => {
-    setPendingSelection({ type: 'zone', value: tempSelectedZone });
+    // Set global callback to receive selection
+    global.filterSelectionCallback = (type: string, value: string) => {
+      if (type === 'zone') {
+        setTempSelectedZone(value);
+        // Re-open the filter sheet
+        setTimeout(() => setFilterSheetVisible(true), 100);
+      }
+    };
     setFilterSheetVisible(false);
     router.push({
       pathname: '/(drawer)/select-zone',
@@ -363,7 +351,14 @@ export default function ComplaintsScreen() {
   };
 
   const handleDepartmentPress = () => {
-    setPendingSelection({ type: 'department', value: tempSelectedDepartment });
+    // Set global callback to receive selection
+    global.filterSelectionCallback = (type: string, value: string) => {
+      if (type === 'department') {
+        setTempSelectedDepartment(value);
+        // Re-open the filter sheet
+        setTimeout(() => setFilterSheetVisible(true), 100);
+      }
+    };
     setFilterSheetVisible(false);
     router.push({
       pathname: '/(drawer)/select-department',

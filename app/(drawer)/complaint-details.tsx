@@ -808,7 +808,7 @@ const styles = StyleSheet.create({
     fontStyle: 'italic',
   },
   bottomSpacer: {
-    height: 80,
+    height: Platform.OS === 'ios' ? 100 : 90,
   },
   floatingActionBar: {
     position: 'absolute',
@@ -818,8 +818,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     backgroundColor: COLORS.cardBackground,
     paddingHorizontal: 16,
-    paddingVertical: 12,
-    paddingBottom: Platform.OS === 'ios' ? 24 : 12,
+    paddingTop: 12,
+    paddingBottom: Platform.OS === 'ios' ? 34 : 24,
     borderTopWidth: 1,
     borderTopColor: COLORS.border,
     gap: 12,

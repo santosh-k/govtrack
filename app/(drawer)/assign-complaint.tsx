@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -21,6 +21,7 @@ const COLORS = {
   textSecondary: '#666666',
   textLight: '#9E9E9E',
   primary: '#FF9800',
+  success: '#4CAF50',
   border: '#E0E0E0',
   divider: '#EEEEEE',
   disabled: '#F5F5F5',
@@ -134,6 +135,80 @@ interface Selection {
   designation?: string;
 }
 
+type StepStatus = 'disabled' | 'active' | 'completed';
+
+interface StepItemProps {
+  number: number;
+  title: string;
+  status: StepStatus;
+  selectedValue?: string;
+  onPress: () => void;
+}
+
+function StepItem({ number, title, status, selectedValue, onPress }: StepItemProps) {
+  const isDisabled = status === 'disabled';
+  const isActive = status === 'active';
+  const isCompleted = status === 'completed';
+
+  return (
+    <TouchableOpacity
+      style={[styles.stepItem, isDisabled && styles.stepItemDisabled]}
+      onPress={onPress}
+      disabled={isDisabled}
+      activeOpacity={0.7}
+    >
+      <View style={styles.stepLeft}>
+        <View
+          style={[
+            styles.stepNumber,
+            isActive && styles.stepNumberActive,
+            isCompleted && styles.stepNumberCompleted,
+            isDisabled && styles.stepNumberDisabled,
+          ]}
+        >
+          {isCompleted ? (
+            <Ionicons name="checkmark" size={18} color={COLORS.cardBackground} />
+          ) : (
+            <Text
+              style={[
+                styles.stepNumberText,
+                isActive && styles.stepNumberTextActive,
+                isDisabled && styles.stepNumberTextDisabled,
+              ]}
+            >
+              {number}
+            </Text>
+          )}
+        </View>
+        <View style={styles.stepContent}>
+          <Text
+            style={[
+              styles.stepTitle,
+              isActive && styles.stepTitleActive,
+              isDisabled && styles.stepTitleDisabled,
+            ]}
+          >
+            {title}
+          </Text>
+          {isCompleted && selectedValue && (
+            <Text style={styles.stepValue}>{selectedValue}</Text>
+          )}
+          {!isCompleted && !isDisabled && (
+            <Text style={styles.stepPlaceholder}>Tap to select</Text>
+          )}
+        </View>
+      </View>
+      {!isDisabled && (
+        <Ionicons
+          name="chevron-forward"
+          size={20}
+          color={isActive ? COLORS.primary : COLORS.textSecondary}
+        />
+      )}
+    </TouchableOpacity>
+  );
+}
+
 export default function AssignComplaintScreen() {
   const params = useLocalSearchParams();
   // const complaintId = params.complaintId as string; // Will be used for API calls
@@ -147,96 +222,15 @@ export default function AssignComplaintScreen() {
   const [comment, setComment] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleCircleSelect = () => {
-    router.push({
-      pathname: '/searchable-selection',
-      params: {
-        title: 'Select Circle',
-        items: JSON.stringify(MOCK_DATA.circles),
-        returnTo: 'assign-complaint',
-        field: 'circle',
-      },
-    });
-  };
-
-  const handleDivisionSelect = () => {
-    if (!circle) return;
-    const divisions = (MOCK_DATA.divisions as any)[circle.id] || [];
-    router.push({
-      pathname: '/searchable-selection',
-      params: {
-        title: 'Select Division',
-        items: JSON.stringify(divisions),
-        returnTo: 'assign-complaint',
-        field: 'division',
-      },
-    });
-  };
-
-  const handleSubDivisionSelect = () => {
-    if (!division) return;
-    const subDivisions = (MOCK_DATA.subDivisions as any)[division.id] || [];
-    router.push({
-      pathname: '/searchable-selection',
-      params: {
-        title: 'Select Sub-Division',
-        items: JSON.stringify(subDivisions),
-        returnTo: 'assign-complaint',
-        field: 'subDivision',
-      },
-    });
-  };
-
-  const handleDepartmentSelect = () => {
-    router.push({
-      pathname: '/searchable-selection',
-      params: {
-        title: 'Select Department',
-        items: JSON.stringify(MOCK_DATA.departments),
-        returnTo: 'assign-complaint',
-        field: 'department',
-      },
-    });
-  };
-
-  const handleDesignationSelect = () => {
-    if (!department) return;
-    const designations = (MOCK_DATA.designations as any)[department.id] || [];
-    router.push({
-      pathname: '/searchable-selection',
-      params: {
-        title: 'Select Designation',
-        items: JSON.stringify(designations),
-        returnTo: 'assign-complaint',
-        field: 'designation',
-      },
-    });
-  };
-
-  const handleUserSelect = () => {
-    if (!designation) return;
-    const users = (MOCK_DATA.users as any)[designation.id] || [];
-    router.push({
-      pathname: '/searchable-selection',
-      params: {
-        title: 'Select User',
-        items: JSON.stringify(users),
-        returnTo: 'assign-complaint',
-        field: 'user',
-      },
-    });
-  };
-
-  // Handle selection from searchable screen
-  React.useEffect(() => {
-    if (params.selectedItem) {
+  // Handle selection from searchable screen - FIXED
+  useEffect(() => {
+    if (params.selectedItem && params.selectedField) {
       const item = JSON.parse(params.selectedItem as string);
       const field = params.selectedField as string;
 
       switch (field) {
         case 'circle':
           setCircle(item);
-          // Reset dependent fields
           setDivision(null);
           setSubDivision(null);
           setDepartment(null);
@@ -269,23 +263,118 @@ export default function AssignComplaintScreen() {
           setUser(item);
           break;
       }
-
-      // Clear the params to avoid re-triggering
-      router.setParams({ selectedItem: undefined, selectedField: undefined });
     }
   }, [params.selectedItem, params.selectedField]);
 
+  const handleCircleSelect = () => {
+    router.push({
+      pathname: '/searchable-selection',
+      params: {
+        title: 'Select Circle',
+        items: JSON.stringify(MOCK_DATA.circles),
+        field: 'circle',
+      },
+    });
+  };
+
+  const handleDivisionSelect = () => {
+    if (!circle) return;
+    const divisions = (MOCK_DATA.divisions as any)[circle.id] || [];
+    router.push({
+      pathname: '/searchable-selection',
+      params: {
+        title: 'Select Division',
+        items: JSON.stringify(divisions),
+        field: 'division',
+      },
+    });
+  };
+
+  const handleSubDivisionSelect = () => {
+    if (!division) return;
+    const subDivisions = (MOCK_DATA.subDivisions as any)[division.id] || [];
+    router.push({
+      pathname: '/searchable-selection',
+      params: {
+        title: 'Select Sub-Division',
+        items: JSON.stringify(subDivisions),
+        field: 'subDivision',
+      },
+    });
+  };
+
+  const handleDepartmentSelect = () => {
+    router.push({
+      pathname: '/searchable-selection',
+      params: {
+        title: 'Select Department',
+        items: JSON.stringify(MOCK_DATA.departments),
+        field: 'department',
+      },
+    });
+  };
+
+  const handleDesignationSelect = () => {
+    if (!department) return;
+    const designations = (MOCK_DATA.designations as any)[department.id] || [];
+    router.push({
+      pathname: '/searchable-selection',
+      params: {
+        title: 'Select Designation',
+        items: JSON.stringify(designations),
+        field: 'designation',
+      },
+    });
+  };
+
+  const handleUserSelect = () => {
+    if (!designation) return;
+    const users = (MOCK_DATA.users as any)[designation.id] || [];
+    router.push({
+      pathname: '/searchable-selection',
+      params: {
+        title: 'Select User',
+        items: JSON.stringify(users),
+        field: 'user',
+      },
+    });
+  };
+
   const handleAssign = async () => {
     setIsSubmitting(true);
-    await new Promise((resolve) => setTimeout(resolve, 1500)); // Simulate API call
+    await new Promise((resolve) => setTimeout(resolve, 1500));
 
-    // Navigate back with assignment data
     router.back();
     router.setParams({
       assignedUser: user?.name,
       assignedDesignation: user?.designation,
       showAssignmentToast: 'true',
     });
+  };
+
+  // Determine step statuses
+  const getStepStatus = (stepNumber: number): StepStatus => {
+    switch (stepNumber) {
+      case 1:
+        return circle ? 'completed' : 'active';
+      case 2:
+        if (!circle) return 'disabled';
+        return division ? 'completed' : 'active';
+      case 3:
+        if (!division) return 'disabled';
+        return subDivision ? 'completed' : 'active';
+      case 4:
+        if (!subDivision) return 'disabled';
+        return department ? 'completed' : 'active';
+      case 5:
+        if (!department) return 'disabled';
+        return designation ? 'completed' : 'active';
+      case 6:
+        if (!designation) return 'disabled';
+        return user ? 'completed' : 'active';
+      default:
+        return 'disabled';
+    }
   };
 
   const isAssignButtonEnabled = user !== null;
@@ -311,166 +400,75 @@ export default function AssignComplaintScreen() {
 
       {/* Content */}
       <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
+        {/* Steps Card */}
         <View style={styles.card}>
-          {/* Circle */}
-          <View style={styles.field}>
-            <Text style={styles.label}>Circle</Text>
-            <TouchableOpacity
-              style={styles.dropdown}
-              onPress={handleCircleSelect}
-              activeOpacity={0.7}
-            >
-              <Text style={[styles.dropdownText, !circle && styles.placeholderText]}>
-                {circle?.name || 'Select a circle'}
-              </Text>
-              <Ionicons name="chevron-forward" size={20} color={COLORS.textSecondary} />
-            </TouchableOpacity>
-          </View>
+          <StepItem
+            number={1}
+            title="Select Circle"
+            status={getStepStatus(1)}
+            selectedValue={circle?.name}
+            onPress={handleCircleSelect}
+          />
+          <View style={styles.stepSeparator} />
 
-          {/* Division */}
-          <View style={styles.field}>
-            <Text style={styles.label}>Division</Text>
-            <TouchableOpacity
-              style={[styles.dropdown, !circle && styles.dropdownDisabled]}
-              onPress={handleDivisionSelect}
-              activeOpacity={0.7}
-              disabled={!circle}
-            >
-              <Text
-                style={[
-                  styles.dropdownText,
-                  !division && styles.placeholderText,
-                  !circle && styles.disabledText,
-                ]}
-              >
-                {division?.name || 'Select a division'}
-              </Text>
-              <Ionicons
-                name="chevron-forward"
-                size={20}
-                color={circle ? COLORS.textSecondary : COLORS.disabledText}
-              />
-            </TouchableOpacity>
-          </View>
+          <StepItem
+            number={2}
+            title="Select Division"
+            status={getStepStatus(2)}
+            selectedValue={division?.name}
+            onPress={handleDivisionSelect}
+          />
+          <View style={styles.stepSeparator} />
 
-          {/* Sub-Division */}
-          <View style={styles.field}>
-            <Text style={styles.label}>Sub-Division</Text>
-            <TouchableOpacity
-              style={[styles.dropdown, !division && styles.dropdownDisabled]}
-              onPress={handleSubDivisionSelect}
-              activeOpacity={0.7}
-              disabled={!division}
-            >
-              <Text
-                style={[
-                  styles.dropdownText,
-                  !subDivision && styles.placeholderText,
-                  !division && styles.disabledText,
-                ]}
-              >
-                {subDivision?.name || 'Select a sub-division'}
-              </Text>
-              <Ionicons
-                name="chevron-forward"
-                size={20}
-                color={division ? COLORS.textSecondary : COLORS.disabledText}
-              />
-            </TouchableOpacity>
-          </View>
+          <StepItem
+            number={3}
+            title="Select Sub-Division"
+            status={getStepStatus(3)}
+            selectedValue={subDivision?.name}
+            onPress={handleSubDivisionSelect}
+          />
+          <View style={styles.stepSeparator} />
 
-          {/* Department */}
-          <View style={styles.field}>
-            <Text style={styles.label}>Department</Text>
-            <TouchableOpacity
-              style={[styles.dropdown, !subDivision && styles.dropdownDisabled]}
-              onPress={handleDepartmentSelect}
-              activeOpacity={0.7}
-              disabled={!subDivision}
-            >
-              <Text
-                style={[
-                  styles.dropdownText,
-                  !department && styles.placeholderText,
-                  !subDivision && styles.disabledText,
-                ]}
-              >
-                {department?.name || 'Select a department'}
-              </Text>
-              <Ionicons
-                name="chevron-forward"
-                size={20}
-                color={subDivision ? COLORS.textSecondary : COLORS.disabledText}
-              />
-            </TouchableOpacity>
-          </View>
+          <StepItem
+            number={4}
+            title="Select Department"
+            status={getStepStatus(4)}
+            selectedValue={department?.name}
+            onPress={handleDepartmentSelect}
+          />
+          <View style={styles.stepSeparator} />
 
-          {/* Designation */}
-          <View style={styles.field}>
-            <Text style={styles.label}>Designation</Text>
-            <TouchableOpacity
-              style={[styles.dropdown, !department && styles.dropdownDisabled]}
-              onPress={handleDesignationSelect}
-              activeOpacity={0.7}
-              disabled={!department}
-            >
-              <Text
-                style={[
-                  styles.dropdownText,
-                  !designation && styles.placeholderText,
-                  !department && styles.disabledText,
-                ]}
-              >
-                {designation?.name || 'Select a designation'}
-              </Text>
-              <Ionicons
-                name="chevron-forward"
-                size={20}
-                color={department ? COLORS.textSecondary : COLORS.disabledText}
-              />
-            </TouchableOpacity>
-          </View>
+          <StepItem
+            number={5}
+            title="Select Designation"
+            status={getStepStatus(5)}
+            selectedValue={designation?.name}
+            onPress={handleDesignationSelect}
+          />
+          <View style={styles.stepSeparator} />
 
-          {/* User */}
-          <View style={styles.field}>
-            <Text style={styles.label}>User</Text>
-            <TouchableOpacity
-              style={[styles.dropdown, !designation && styles.dropdownDisabled]}
-              onPress={handleUserSelect}
-              activeOpacity={0.7}
-              disabled={!designation}
-            >
-              <Text
-                style={[
-                  styles.dropdownText,
-                  !user && styles.placeholderText,
-                  !designation && styles.disabledText,
-                ]}
-              >
-                {user?.name || 'Select a user'}
-              </Text>
-              <Ionicons
-                name="chevron-forward"
-                size={20}
-                color={designation ? COLORS.textSecondary : COLORS.disabledText}
-              />
-            </TouchableOpacity>
-          </View>
+          <StepItem
+            number={6}
+            title="Select User"
+            status={getStepStatus(6)}
+            selectedValue={user?.name}
+            onPress={handleUserSelect}
+          />
+        </View>
 
-          {/* Comment */}
-          <View style={styles.field}>
-            <Text style={styles.label}>Comment (Optional)</Text>
-            <TextInput
-              style={styles.textInput}
-              placeholder="Add any notes or instructions..."
-              placeholderTextColor={COLORS.textLight}
-              multiline
-              numberOfLines={4}
-              textAlignVertical="top"
-              value={comment}
-              onChangeText={setComment}
-            />
-          </View>
+        {/* Comment Card */}
+        <View style={styles.card}>
+          <Text style={styles.commentLabel}>Comment (Optional)</Text>
+          <TextInput
+            style={styles.textInput}
+            placeholder="Add any notes or instructions..."
+            placeholderTextColor={COLORS.textLight}
+            multiline
+            numberOfLines={4}
+            textAlignVertical="top"
+            value={comment}
+            onChangeText={setComment}
+          />
         </View>
 
         {/* Spacer for button */}
@@ -545,7 +543,8 @@ const styles = StyleSheet.create({
   card: {
     backgroundColor: COLORS.cardBackground,
     borderRadius: 16,
-    padding: 20,
+    padding: 16,
+    marginBottom: 16,
     borderWidth: 1,
     borderColor: COLORS.border,
     ...Platform.select({
@@ -560,44 +559,93 @@ const styles = StyleSheet.create({
       },
     }),
   },
-  field: {
-    marginBottom: 20,
+  stepItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 12,
+    paddingHorizontal: 8,
   },
-  label: {
+  stepItemDisabled: {
+    opacity: 0.5,
+  },
+  stepLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+    gap: 12,
+  },
+  stepNumber: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: COLORS.disabled,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: COLORS.border,
+  },
+  stepNumberActive: {
+    backgroundColor: COLORS.primary,
+    borderColor: COLORS.primary,
+  },
+  stepNumberCompleted: {
+    backgroundColor: COLORS.success,
+    borderColor: COLORS.success,
+  },
+  stepNumberDisabled: {
+    backgroundColor: COLORS.disabled,
+    borderColor: COLORS.divider,
+  },
+  stepNumberText: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: COLORS.textSecondary,
+  },
+  stepNumberTextActive: {
+    color: COLORS.cardBackground,
+  },
+  stepNumberTextDisabled: {
+    color: COLORS.disabledText,
+  },
+  stepContent: {
+    flex: 1,
+  },
+  stepTitle: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: COLORS.text,
+    marginBottom: 2,
+  },
+  stepTitleActive: {
+    color: COLORS.primary,
+  },
+  stepTitleDisabled: {
+    color: COLORS.disabledText,
+  },
+  stepValue: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: COLORS.textSecondary,
+  },
+  stepPlaceholder: {
+    fontSize: 13,
+    fontWeight: '400',
+    color: COLORS.textLight,
+    fontStyle: 'italic',
+  },
+  stepSeparator: {
+    height: 1,
+    backgroundColor: COLORS.divider,
+    marginLeft: 56,
+  },
+  commentLabel: {
     fontSize: 13,
     fontWeight: '600',
     color: COLORS.textSecondary,
     marginBottom: 10,
     textTransform: 'uppercase',
     letterSpacing: 0.5,
-  },
-  dropdown: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    backgroundColor: COLORS.cardBackground,
-    borderWidth: 1,
-    borderColor: COLORS.border,
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    paddingVertical: 14,
-  },
-  dropdownDisabled: {
-    backgroundColor: COLORS.disabled,
-    borderColor: COLORS.divider,
-  },
-  dropdownText: {
-    fontSize: 15,
-    fontWeight: '500',
-    color: COLORS.text,
-    flex: 1,
-  },
-  placeholderText: {
-    color: COLORS.textLight,
-    fontWeight: '400',
-  },
-  disabledText: {
-    color: COLORS.disabledText,
   },
   textInput: {
     backgroundColor: COLORS.cardBackground,

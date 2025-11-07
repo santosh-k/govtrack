@@ -322,13 +322,16 @@ export default function ComplaintDetailsScreen() {
 
           {/* Key Details Grid */}
           <View style={styles.detailsGrid}>
+            {/* Two-Column Row: Complaint Type and Poll Number */}
             <View style={styles.gridRow}>
               <GridItem label="Complaint Type" value={complaint.complaintType} />
-              <GridItem label="Category" value={complaint.category} />
-            </View>
-            <View style={styles.gridRow}>
               <GridItem label="Poll Number" value={complaint.pollNumber} />
-              <View style={styles.gridItem} />
+            </View>
+
+            {/* Full-Width Row: Category */}
+            <View style={styles.fullWidthRow}>
+              <Text style={styles.gridLabel}>Category</Text>
+              <Text style={styles.gridValue}>{complaint.category}</Text>
             </View>
           </View>
 
@@ -591,6 +594,9 @@ const styles = StyleSheet.create({
   },
   gridItem: {
     flex: 1,
+  },
+  fullWidthRow: {
+    width: '100%',
   },
   gridLabel: {
     fontSize: 12,

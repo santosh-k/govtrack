@@ -193,7 +193,7 @@ function ComplaintCard({ complaint, onPress }: ComplaintCardProps) {
       onPress={onPress}
       activeOpacity={0.7}
     >
-      {/* Top Row - ID (left) and Status Badge (right) */}
+      {/* Top Section - ID (left) and Status Badge (right) */}
       <View style={styles.cardTopRow}>
         <Text style={styles.complaintId}>{complaint.id}</Text>
         <View style={[styles.statusBadge, { backgroundColor: getStatusColor(complaint.status) }]}>
@@ -201,35 +201,42 @@ function ComplaintCard({ complaint, onPress }: ComplaintCardProps) {
         </View>
       </View>
 
-      {/* Middle Section - Core Details (Left Aligned) */}
-      <View style={styles.cardMiddleSection}>
-        <Text style={styles.complaintCategory} numberOfLines={2}>
+      {/* Main Body - Category and Location */}
+      <View style={styles.cardMainBody}>
+        <Text style={styles.complaintCategory}>
           {complaint.category}
-        </Text>
-        <Text style={styles.complaintDepartment} numberOfLines={1}>
-          {complaint.department}
         </Text>
         <View style={styles.locationContainer}>
           <Ionicons name="location-outline" size={16} color={COLORS.primary} />
-          <Text style={styles.complaintLocation} numberOfLines={1}>
+          <Text style={styles.complaintLocation}>
             {complaint.location}
           </Text>
         </View>
       </View>
 
-      {/* Bottom Section - Attachments (left) and Action Button (right) */}
-      <View style={styles.cardBottomSection}>
-        <View style={styles.attachmentsContainer}>
-          {complaint.hasPhotos && (
-            <Ionicons name="camera-outline" size={20} color={COLORS.attachmentIcon} style={styles.attachmentIcon} />
+      {/* Footer Section - Attachments/Department (left) and Action Button (right) */}
+      <View style={styles.cardFooterSection}>
+        <View style={styles.footerLeftBlock}>
+          {/* Attachment Icons Row */}
+          {(complaint.hasPhotos || complaint.hasVideos || complaint.hasDocuments) && (
+            <View style={styles.attachmentsRow}>
+              {complaint.hasPhotos && (
+                <Ionicons name="camera-outline" size={18} color={COLORS.attachmentIcon} style={styles.attachmentIcon} />
+              )}
+              {complaint.hasVideos && (
+                <Ionicons name="videocam-outline" size={18} color={COLORS.attachmentIcon} style={styles.attachmentIcon} />
+              )}
+              {complaint.hasDocuments && (
+                <Ionicons name="document-attach-outline" size={18} color={COLORS.attachmentIcon} style={styles.attachmentIcon} />
+              )}
+            </View>
           )}
-          {complaint.hasVideos && (
-            <Ionicons name="videocam-outline" size={20} color={COLORS.attachmentIcon} style={styles.attachmentIcon} />
-          )}
-          {complaint.hasDocuments && (
-            <Ionicons name="document-attach-outline" size={20} color={COLORS.attachmentIcon} style={styles.attachmentIcon} />
-          )}
+          {/* Department Text Below */}
+          <Text style={styles.complaintDepartment} numberOfLines={2}>
+            {complaint.department}
+          </Text>
         </View>
+
         <TouchableOpacity
           style={styles.actionButton}
           onPress={onPress}
@@ -479,9 +486,8 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
     letterSpacing: 0.4,
   },
-  cardMiddleSection: {
-    marginBottom: 18,
-    alignItems: 'flex-start',
+  cardMainBody: {
+    marginBottom: 16,
   },
   complaintCategory: {
     fontSize: 19,
@@ -490,16 +496,9 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     lineHeight: 26,
   },
-  complaintDepartment: {
-    fontSize: 14,
-    fontWeight: '400',
-    color: COLORS.textSecondary,
-    marginBottom: 6,
-    lineHeight: 20,
-  },
   locationContainer: {
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     gap: 4,
   },
   complaintLocation: {
@@ -509,20 +508,30 @@ const styles = StyleSheet.create({
     flex: 1,
     lineHeight: 20,
   },
-  cardBottomSection: {
+  cardFooterSection: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingTop: 4,
+    paddingTop: 8,
   },
-  attachmentsContainer: {
+  footerLeftBlock: {
+    flex: 1,
+    marginRight: 12,
+  },
+  attachmentsRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
-    flex: 1,
+    gap: 10,
+    marginBottom: 6,
   },
   attachmentIcon: {
     opacity: 0.6,
+  },
+  complaintDepartment: {
+    fontSize: 13,
+    fontWeight: '400',
+    color: COLORS.textLight,
+    lineHeight: 18,
   },
   actionButton: {
     width: 44,

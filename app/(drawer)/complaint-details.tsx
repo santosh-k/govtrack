@@ -60,6 +60,7 @@ interface ComplaintDetails {
   lastUpdated: string;
   reportedByName: string;
   reportedByContact: string;
+  reportedByAddress: string;
   assignedTo?: string;
   assignedToDesignation?: string;
   media: MediaItem[];
@@ -80,6 +81,7 @@ const MOCK_COMPLAINT: ComplaintDetails = {
   lastUpdated: '07/11/2025 09:02',
   reportedByName: 'neil sparx',
   reportedByContact: '5555555555',
+  reportedByAddress: '123, Karol Bagh, New Delhi, 110005',
   assignedTo: 'Er Sabir Ali', // Set to undefined or remove this line to test "Not Yet Assigned"
   assignedToDesignation: 'Assistant Engineer',
   media: [
@@ -418,8 +420,18 @@ export default function ComplaintDetailsScreen() {
           <View style={styles.personInfo}>
             <Ionicons name="person-circle-outline" size={28} color={COLORS.textSecondary} />
             <View style={styles.personDetails}>
-              <Text style={styles.personName}>{complaint.reportedByName}</Text>
-              <Text style={styles.personContact}>{complaint.reportedByContact}</Text>
+              <View style={styles.personDetailRow}>
+                <Text style={styles.personLabel}>Name:</Text>
+                <Text style={styles.personName}>{complaint.reportedByName}</Text>
+              </View>
+              <View style={styles.personDetailRow}>
+                <Text style={styles.personLabel}>Contact Number:</Text>
+                <Text style={styles.personContact}>{complaint.reportedByContact}</Text>
+              </View>
+              <View style={styles.personDetailRow}>
+                <Text style={styles.personLabel}>Address:</Text>
+                <Text style={styles.personContact}>{complaint.reportedByAddress}</Text>
+              </View>
             </View>
           </View>
         </View>
@@ -698,22 +710,33 @@ const styles = StyleSheet.create({
   },
   personInfo: {
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     gap: 12,
   },
   personDetails: {
     flex: 1,
+    gap: 8,
+  },
+  personDetailRow: {
+    gap: 4,
+  },
+  personLabel: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: COLORS.textLight,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
   },
   personName: {
     fontSize: 16,
     fontWeight: '600',
     color: COLORS.text,
-    marginBottom: 4,
   },
   personContact: {
     fontSize: 14,
     fontWeight: '400',
     color: COLORS.textSecondary,
+    lineHeight: 20,
   },
   peopleDivider: {
     height: 1,

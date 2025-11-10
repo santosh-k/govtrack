@@ -45,10 +45,14 @@ export default function SearchableSelectionScreen() {
   );
 
   const handleSelectItem = (item: Item) => {
-    router.back();
-    router.setParams({
-      selectedItem: JSON.stringify(item),
-      selectedField: field,
+    // Navigate back to assign-complaint with the selected item
+    router.replace({
+      pathname: '/assign-complaint',
+      params: {
+        selectedItem: JSON.stringify(item),
+        selectedField: field,
+        complaintId: params.complaintId as string,
+      },
     });
   };
 

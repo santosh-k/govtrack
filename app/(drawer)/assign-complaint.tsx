@@ -188,7 +188,7 @@ function StepItem({ number, title, status, selectedValue, onPress }: StepItemPro
 
 export default function AssignComplaintScreen() {
   const params = useLocalSearchParams();
-  // const complaintId = params.complaintId as string; // Will be used for API calls
+  const complaintId = params.complaintId as string;
 
   const [circle, setCircle] = useState<Selection | null>(null);
   const [division, setDivision] = useState<Selection | null>(null);
@@ -238,6 +238,7 @@ export default function AssignComplaintScreen() {
         title: 'Select Circle',
         items: JSON.stringify(MOCK_DATA.circles),
         field: 'circle',
+        complaintId: complaintId,
       },
     });
   };
@@ -251,6 +252,7 @@ export default function AssignComplaintScreen() {
         title: 'Select Division',
         items: JSON.stringify(allDivisions),
         field: 'division',
+        complaintId: complaintId,
       },
     });
   };
@@ -264,6 +266,7 @@ export default function AssignComplaintScreen() {
         title: 'Select Sub-Division',
         items: JSON.stringify(allSubDivisions),
         field: 'subDivision',
+        complaintId: complaintId,
       },
     });
   };
@@ -275,6 +278,7 @@ export default function AssignComplaintScreen() {
         title: 'Select Department',
         items: JSON.stringify(MOCK_DATA.departments),
         field: 'department',
+        complaintId: complaintId,
       },
     });
   };
@@ -288,6 +292,7 @@ export default function AssignComplaintScreen() {
         title: 'Select Designation',
         items: JSON.stringify(allDesignations),
         field: 'designation',
+        complaintId: complaintId,
       },
     });
   };
@@ -301,6 +306,7 @@ export default function AssignComplaintScreen() {
         title: 'Select User',
         items: JSON.stringify(allUsers),
         field: 'user',
+        complaintId: complaintId,
       },
     });
   };

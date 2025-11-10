@@ -359,13 +359,13 @@ const styles = StyleSheet.create({
   },
   filterPillsContainer: {
     paddingHorizontal: 16,
-    paddingVertical: 8,
+    paddingVertical: 6,
     gap: 8,
   },
   filterPill: {
-    paddingVertical: 6,
-    paddingHorizontal: 16,
-    borderRadius: 20,
+    paddingVertical: 4,
+    paddingHorizontal: 14,
+    borderRadius: 16,
     backgroundColor: COLORS.background,
     borderWidth: 1.5,
     borderColor: COLORS.border,
@@ -379,10 +379,10 @@ const styles = StyleSheet.create({
   customRangePill: {
     flexDirection: 'row',
     gap: 6,
-    paddingHorizontal: 12,
+    paddingHorizontal: 10,
   },
   filterPillText: {
-    fontSize: 13,
+    fontSize: 12,
     fontWeight: '600',
     color: COLORS.textSecondary,
   },
@@ -431,7 +431,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   statsInfo: {
-    flex: 1,
+    flex: 2,
     gap: 4,
   },
   statNumber: {

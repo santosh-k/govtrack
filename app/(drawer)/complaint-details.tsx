@@ -279,6 +279,31 @@ export default function ComplaintDetailsScreen() {
     }
   };
 
+  const handleNavigateToLocation = async () => {
+    const address = encodeURIComponent(complaintData.location);
+    const url = Platform.select({
+      ios: `maps://?daddr=${address}&dirflg=d`,
+      android: `google.navigation:q=${address}&mode=d`,
+    });
+
+    const webUrl = `https://www.google.com/maps/dir/?api=1&destination=${address}&travelmode=driving`;
+
+    try {
+      if (url) {
+        const supported = await Linking.canOpenURL(url);
+        if (supported) {
+          await Linking.openURL(url);
+        } else {
+          await Linking.openURL(webUrl);
+        }
+      } else {
+        await Linking.openURL(webUrl);
+      }
+    } catch {
+      Alert.alert('Error', 'Unable to open navigation');
+    }
+  };
+
   const handleMediaPress = (index: number) => {
     setSelectedMediaIndex(index);
     setMediaViewerVisible(true);
@@ -409,7 +434,36 @@ export default function ComplaintDetailsScreen() {
           </View>
         </View>
 
-        {/* Card 2: Additional Information */}
+        {/* Card 2: Interactive Map Card */}
+        <TouchableOpacity
+          style={styles.mapCard}
+          onPress={handleNavigateToLocation}
+          activeOpacity={0.85}
+        >
+          {/* Map Background Image - Using placeholder for demo */}
+          <Image
+            source={require('@/assets/images/map-placeholder.png')}
+            style={styles.mapImage}
+            resizeMode="cover"
+          />
+
+          {/* Address Overlay */}
+          <View style={styles.mapAddressOverlay}>
+            <View style={styles.mapAddressContent}>
+              <Ionicons name="location-sharp" size={18} color="#FFFFFF" />
+              <Text style={styles.mapAddressText} numberOfLines={2}>
+                {complaintData.location}
+              </Text>
+            </View>
+          </View>
+
+          {/* Directions Button */}
+          <View style={styles.directionsButton}>
+            <Ionicons name="navigate" size={24} color="#FFFFFF" />
+          </View>
+        </TouchableOpacity>
+
+        {/* Card 3: Additional Information */}
         <View style={styles.card}>
           <Text style={styles.cardTitle}>Additional Information</Text>
 
@@ -425,7 +479,7 @@ export default function ComplaintDetailsScreen() {
           </View>
         </View>
 
-        {/* Card 3: Media Attachments */}
+        {/* Card 4: Media Attachments */}
         {complaintData.media.length > 0 && (
           <View style={styles.card}>
             <Text style={styles.cardTitle}>Media Attachments</Text>
@@ -457,7 +511,7 @@ export default function ComplaintDetailsScreen() {
           </View>
         )}
 
-        {/* Card 4: Complainant Information */}
+        {/* Card 5: Complainant Information */}
         <View style={styles.card}>
           <Text style={styles.cardTitle}>Reported By</Text>
 
@@ -939,5 +993,75 @@ const styles = StyleSheet.create({
   },
   navButtonRight: {
     right: 20,
+  },
+  // Map Card Styles
+  mapCard: {
+    backgroundColor: COLORS.cardBackground,
+    borderRadius: 16,
+    marginBottom: 16,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    height: 220,
+    position: 'relative',
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.1,
+        shadowRadius: 16,
+      },
+      android: {
+        elevation: 4,
+      },
+    }),
+  },
+  mapImage: {
+    width: '100%',
+    height: '100%',
+    backgroundColor: COLORS.background,
+  },
+  mapAddressOverlay: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.75)',
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+  },
+  mapAddressContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  mapAddressText: {
+    flex: 1,
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#FFFFFF',
+    lineHeight: 20,
+  },
+  directionsButton: {
+    position: 'absolute',
+    bottom: 16,
+    right: 16,
+    width: 52,
+    height: 52,
+    borderRadius: 26,
+    backgroundColor: COLORS.saffron,
+    justifyContent: 'center',
+    alignItems: 'center',
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 8,
+      },
+      android: {
+        elevation: 8,
+      },
+    }),
   },
 });

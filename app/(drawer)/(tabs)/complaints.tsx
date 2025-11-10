@@ -23,18 +23,16 @@ const COLORS = {
   cardBackground: '#FFFFFF',
   text: '#1A1A1A',
   textSecondary: '#666666',
-  textLight: '#9E9E9E',
   primary: '#FF9800',
   border: '#E8E8E8',
 
-  // Soft pastel card background colors (entire card)
+  // Soft pastel card background colors
   pastelBlue: '#D4E9F7',
   pastelPink: '#FFE4E9',
   pastelPurple: '#E8D7F1',
   pastelGreen: '#D8F3DC',
   pastelYellow: '#FFF4D6',
   pastelPeach: '#FFE5D4',
-  pastelLavender: '#E6DFF3',
   pastelMint: '#D3F5F7',
 
   // Icon colors (darker for contrast on pastel backgrounds)
@@ -44,7 +42,6 @@ const COLORS = {
   iconGreen: '#2E7D32',
   iconOrange: '#F57C00',
   iconTeal: '#00838F',
-  iconGrey: '#424242',
   iconPeach: '#D84315',
 };
 

@@ -12,7 +12,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from 'expo-router';
-import Header from '@/components/Header';
+import { DrawerActions, useNavigation } from '@react-navigation/native';
 import FilterBottomSheet from '@/components/FilterBottomSheet';
 
 const COLORS = {
@@ -230,8 +230,13 @@ function ComplaintCard({ complaint, onPress }: ComplaintCardProps) {
 
 export default function ComplaintsScreen() {
   const params = useLocalSearchParams();
+  const navigation = useNavigation();
   const [searchQuery, setSearchQuery] = useState('');
   const [filterSheetVisible, setFilterSheetVisible] = useState(false);
+
+  // Check if navigation came from dashboard
+  const fromDashboard = params.fromDashboard === 'true';
+  const headerTitle = (params.title as string) || 'Complaints';
 
   // Filter states
   const [selectedStatuses, setSelectedStatuses] = useState<string[]>([]);
@@ -443,10 +448,36 @@ export default function ComplaintsScreen() {
     }
   };
 
+  const handleBackPress = () => {
+    router.back();
+  };
+
+  const openDrawer = () => {
+    navigation.dispatch(DrawerActions.openDrawer());
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor={COLORS.cardBackground} />
-      <Header title="Complaints" />
+
+      {/* Custom Header */}
+      <View style={styles.header}>
+        <TouchableOpacity
+          style={styles.headerButton}
+          onPress={fromDashboard ? handleBackPress : openDrawer}
+          activeOpacity={0.6}
+        >
+          <Ionicons
+            name={fromDashboard ? 'arrow-back' : 'menu'}
+            size={28}
+            color={COLORS.text}
+          />
+        </TouchableOpacity>
+
+        <Text style={styles.headerTitle}>{headerTitle}</Text>
+
+        <View style={styles.headerSpacer} />
+      </View>
 
       {/* Search and Filter Bar */}
       <View style={styles.searchFilterContainer}>
@@ -603,6 +634,41 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: COLORS.background,
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: COLORS.cardBackground,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: COLORS.border,
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.08,
+        shadowRadius: 4,
+      },
+      android: {
+        elevation: 3,
+      },
+    }),
+  },
+  headerButton: {
+    padding: 8,
+    marginLeft: -8,
+  },
+  headerTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: COLORS.text,
+    flex: 1,
+    textAlign: 'center',
+  },
+  headerSpacer: {
+    width: 44,
   },
   searchFilterContainer: {
     flexDirection: 'row',

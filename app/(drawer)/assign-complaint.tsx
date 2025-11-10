@@ -31,103 +31,118 @@ const COLORS = {
 
 // Mock hierarchical data
 const MOCK_DATA = {
-  circles: [
-    { id: '1', name: 'North Delhi Circle' },
-    { id: '2', name: 'South Delhi Circle' },
-    { id: '3', name: 'East Delhi Circle' },
+  divisions: [
+    { id: '1', name: 'Civil Lines Division' },
+    { id: '2', name: 'Karol Bagh Division' },
+    { id: '3', name: 'Patparganj Division' },
+    { id: '4', name: 'Mayur Vihar Division' },
+    { id: '5', name: 'Saket Division' },
+    { id: '6', name: 'Defence Colony Division' },
   ],
-  divisions: {
+  subDivisions: {
     '1': [
-      { id: '1-1', name: 'Civil Lines Division', circleId: '1' },
-      { id: '1-2', name: 'Karol Bagh Division', circleId: '1' },
+      { id: '1-1', name: 'SD-1 Civil Lines', divisionId: '1' },
+      { id: '1-2', name: 'SD-2 Civil Lines', divisionId: '1' },
     ],
     '2': [
-      { id: '2-1', name: 'Saket Division', circleId: '2' },
-      { id: '2-2', name: 'Defence Colony Division', circleId: '2' },
+      { id: '2-1', name: 'SD-1 Karol Bagh', divisionId: '2' },
+      { id: '2-2', name: 'SD-2 Karol Bagh', divisionId: '2' },
     ],
     '3': [
-      { id: '3-1', name: 'Patparganj Division', circleId: '3' },
-      { id: '3-2', name: 'Mayur Vihar Division', circleId: '3' },
+      { id: '3-1', name: 'SD-1 Patparganj', divisionId: '3' },
+      { id: '3-2', name: 'SD-2 Patparganj', divisionId: '3' },
+    ],
+    '4': [
+      { id: '4-1', name: 'SD-1 Mayur Vihar', divisionId: '4' },
+    ],
+    '5': [
+      { id: '5-1', name: 'SD-1 Saket', divisionId: '5' },
+    ],
+    '6': [
+      { id: '6-1', name: 'SD-1 Defence Colony', divisionId: '6' },
     ],
   },
-  subDivisions: {
+  departments: {
     '1-1': [
-      { id: '1-1-1', name: 'SD-1 Civil Lines', divisionId: '1-1' },
-      { id: '1-1-2', name: 'SD-2 Civil Lines', divisionId: '1-1' },
+      { id: 'd1', name: 'Public Works Department', subDivisionId: '1-1' },
+      { id: 'd2', name: 'Water Supply', subDivisionId: '1-1' },
     ],
     '1-2': [
-      { id: '1-2-1', name: 'SD-1 Karol Bagh', divisionId: '1-2' },
+      { id: 'd3', name: 'Electrical Maintenance', subDivisionId: '1-2' },
     ],
     '2-1': [
-      { id: '2-1-1', name: 'SD-1 Saket', divisionId: '2-1' },
+      { id: 'd4', name: 'Road Maintenance', subDivisionId: '2-1' },
+      { id: 'd5', name: 'Public Works Department', subDivisionId: '2-1' },
     ],
     '2-2': [
-      { id: '2-2-1', name: 'SD-1 Defence Colony', divisionId: '2-2' },
+      { id: 'd6', name: 'Water Supply', subDivisionId: '2-2' },
     ],
     '3-1': [
-      { id: '3-1-1', name: 'SD-1 Patparganj', divisionId: '3-1' },
-      { id: '3-1-2', name: 'SD-2 Patparganj', divisionId: '3-1' },
+      { id: 'd7', name: 'Public Works Department', subDivisionId: '3-1' },
     ],
     '3-2': [
-      { id: '3-2-1', name: 'SD-1 Mayur Vihar', divisionId: '3-2' },
+      { id: 'd8', name: 'Electrical Maintenance', subDivisionId: '3-2' },
+    ],
+    '4-1': [
+      { id: 'd9', name: 'Road Maintenance', subDivisionId: '4-1' },
+    ],
+    '5-1': [
+      { id: 'd10', name: 'Public Works Department', subDivisionId: '5-1' },
+    ],
+    '6-1': [
+      { id: 'd11', name: 'Water Supply', subDivisionId: '6-1' },
     ],
   },
-  departments: [
-    { id: 'd1', name: 'Public Works Department' },
-    { id: 'd2', name: 'Water Supply' },
-    { id: 'd3', name: 'Electrical Maintenance' },
-    { id: 'd4', name: 'Road Maintenance' },
-  ],
   designations: {
     d1: [
       { id: 'des1', name: 'Executive Engineer', departmentId: 'd1' },
       { id: 'des2', name: 'Assistant Engineer', departmentId: 'd1' },
-      { id: 'des3', name: 'Junior Engineer', departmentId: 'd1' },
     ],
     d2: [
-      { id: 'des4', name: 'Chief Engineer', departmentId: 'd2' },
-      { id: 'des5', name: 'Senior Engineer', departmentId: 'd2' },
+      { id: 'des3', name: 'Chief Engineer', departmentId: 'd2' },
     ],
     d3: [
-      { id: 'des6', name: 'Electrical Engineer', departmentId: 'd3' },
-      { id: 'des7', name: 'Technician', departmentId: 'd3' },
+      { id: 'des4', name: 'Electrical Engineer', departmentId: 'd3' },
     ],
     d4: [
-      { id: 'des8', name: 'Road Engineer', departmentId: 'd4' },
-      { id: 'des9', name: 'Supervisor', departmentId: 'd4' },
+      { id: 'des5', name: 'Road Engineer', departmentId: 'd4' },
+    ],
+    d5: [
+      { id: 'des6', name: 'Assistant Engineer', departmentId: 'd5' },
+    ],
+    d6: [
+      { id: 'des7', name: 'Senior Engineer', departmentId: 'd6' },
+    ],
+    d7: [
+      { id: 'des8', name: 'Executive Engineer', departmentId: 'd7' },
+    ],
+    d8: [
+      { id: 'des9', name: 'Technician', departmentId: 'd8' },
+    ],
+    d9: [
+      { id: 'des10', name: 'Supervisor', departmentId: 'd9' },
+    ],
+    d10: [
+      { id: 'des11', name: 'Junior Engineer', departmentId: 'd10' },
+    ],
+    d11: [
+      { id: 'des12', name: 'Senior Engineer', departmentId: 'd11' },
     ],
   },
-  users: {
-    des1: [
-      { id: 'u1', name: 'Rajesh Kumar', designationId: 'des1', designation: 'Executive Engineer' },
-      { id: 'u2', name: 'Priya Sharma', designationId: 'des1', designation: 'Executive Engineer' },
-    ],
-    des2: [
-      { id: 'u3', name: 'Er Sabir Ali', designationId: 'des2', designation: 'Assistant Engineer' },
-      { id: 'u4', name: 'Amit Patel', designationId: 'des2', designation: 'Assistant Engineer' },
-    ],
-    des3: [
-      { id: 'u5', name: 'Neha Singh', designationId: 'des3', designation: 'Junior Engineer' },
-    ],
-    des4: [
-      { id: 'u6', name: 'Suresh Reddy', designationId: 'des4', designation: 'Chief Engineer' },
-    ],
-    des5: [
-      { id: 'u7', name: 'Kavita Desai', designationId: 'des5', designation: 'Senior Engineer' },
-    ],
-    des6: [
-      { id: 'u8', name: 'Ravi Verma', designationId: 'des6', designation: 'Electrical Engineer' },
-    ],
-    des7: [
-      { id: 'u9', name: 'Ankit Gupta', designationId: 'des7', designation: 'Technician' },
-    ],
-    des8: [
-      { id: 'u10', name: 'Deepak Yadav', designationId: 'des8', designation: 'Road Engineer' },
-    ],
-    des9: [
-      { id: 'u11', name: 'Sanjay Mishra', designationId: 'des9', designation: 'Supervisor' },
-    ],
-  },
+  allUsers: [
+    { id: 'u1', name: 'Rajesh Kumar', designation: 'Executive Engineer' },
+    { id: 'u2', name: 'Priya Sharma', designation: 'Executive Engineer' },
+    { id: 'u3', name: 'Er Sabir Ali', designation: 'Assistant Engineer' },
+    { id: 'u4', name: 'Amit Patel', designation: 'Assistant Engineer' },
+    { id: 'u5', name: 'Neha Singh', designation: 'Junior Engineer' },
+    { id: 'u6', name: 'Suresh Reddy', designation: 'Chief Engineer' },
+    { id: 'u7', name: 'Kavita Desai', designation: 'Senior Engineer' },
+    { id: 'u8', name: 'Ravi Verma', designation: 'Electrical Engineer' },
+    { id: 'u9', name: 'Ankit Gupta', designation: 'Technician' },
+    { id: 'u10', name: 'Deepak Yadav', designation: 'Road Engineer' },
+    { id: 'u11', name: 'Sanjay Mishra', designation: 'Supervisor' },
+    { id: 'u12', name: 'Rahul Verma', designation: 'Junior Engineer' },
+  ],
 };
 
 interface Selection {
@@ -136,54 +151,40 @@ interface Selection {
   designation?: string;
 }
 
-type StepStatus = 'disabled' | 'active' | 'completed';
-
-interface StepItemProps {
-  number: number;
-  title: string;
-  status: StepStatus;
-  selectedValue?: string;
+interface DropdownFieldProps {
+  label: string;
+  value?: string;
+  placeholder: string;
   onPress: () => void;
+  disabled?: boolean;
 }
 
-function StepItem({ number, title, status, selectedValue, onPress }: StepItemProps) {
-  const isCompleted = status === 'completed';
-
+function DropdownField({ label, value, placeholder, onPress, disabled = false }: DropdownFieldProps) {
   return (
-    <TouchableOpacity
-      style={styles.stepItem}
-      onPress={onPress}
-      activeOpacity={0.7}
-    >
-      <View style={styles.stepLeft}>
-        <View
+    <View style={styles.dropdownContainer}>
+      <Text style={styles.dropdownLabel}>{label}</Text>
+      <TouchableOpacity
+        style={[styles.dropdownButton, disabled && styles.dropdownButtonDisabled]}
+        onPress={onPress}
+        disabled={disabled}
+        activeOpacity={0.7}
+      >
+        <Text
           style={[
-            styles.stepNumber,
-            !isCompleted && styles.stepNumberActive,
-            isCompleted && styles.stepNumberCompleted,
+            styles.dropdownText,
+            !value && styles.dropdownPlaceholder,
+            disabled && styles.dropdownTextDisabled,
           ]}
         >
-          {isCompleted ? (
-            <Ionicons name="checkmark" size={18} color={COLORS.cardBackground} />
-          ) : (
-            <Ionicons name="ellipse-outline" size={20} color={COLORS.primary} />
-          )}
-        </View>
-        <View style={styles.stepContent}>
-          <Text style={styles.stepTitle}>{title}</Text>
-          {isCompleted && selectedValue ? (
-            <Text style={styles.stepValue}>{selectedValue}</Text>
-          ) : (
-            <Text style={styles.stepPlaceholder}>Tap to select</Text>
-          )}
-        </View>
-      </View>
-      <Ionicons
-        name="chevron-forward"
-        size={20}
-        color={isCompleted ? COLORS.success : COLORS.primary}
-      />
-    </TouchableOpacity>
+          {value || placeholder}
+        </Text>
+        <Ionicons
+          name="chevron-down"
+          size={20}
+          color={disabled ? COLORS.disabledText : COLORS.textSecondary}
+        />
+      </TouchableOpacity>
+    </View>
   );
 }
 
@@ -191,40 +192,50 @@ export default function AssignComplaintScreen() {
   const params = useLocalSearchParams();
   const complaintId = params.complaintId as string;
 
-  const [circle, setCircle] = useState<Selection | null>(null);
+  // Group assignment states
   const [division, setDivision] = useState<Selection | null>(null);
   const [subDivision, setSubDivision] = useState<Selection | null>(null);
   const [department, setDepartment] = useState<Selection | null>(null);
   const [designation, setDesignation] = useState<Selection | null>(null);
+
+  // Individual user assignment state
   const [user, setUser] = useState<Selection | null>(null);
+
   const [comment, setComment] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [toastVisible, setToastVisible] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
 
-  // Handle selection from searchable screen - FIXED: No cascading resets
+  // Handle selection from searchable screen with cascading logic for groups
   useEffect(() => {
     if (params.selectedItem && params.selectedField) {
       const item = JSON.parse(params.selectedItem as string);
       const field = params.selectedField as string;
 
       switch (field) {
-        case 'circle':
-          setCircle(item);
-          break;
         case 'division':
           setDivision(item);
+          // Reset dependent fields
+          setSubDivision(null);
+          setDepartment(null);
+          setDesignation(null);
           break;
         case 'subDivision':
           setSubDivision(item);
+          // Reset dependent fields
+          setDepartment(null);
+          setDesignation(null);
           break;
         case 'department':
           setDepartment(item);
+          // Reset dependent field
+          setDesignation(null);
           break;
         case 'designation':
           setDesignation(item);
           break;
         case 'user':
+          // User selection is independent
           setUser(item);
           break;
       }
@@ -234,26 +245,12 @@ export default function AssignComplaintScreen() {
     }
   }, [params.selectedItem, params.selectedField]);
 
-  const handleCircleSelect = () => {
-    router.push({
-      pathname: '/searchable-selection',
-      params: {
-        title: 'Select Circle',
-        items: JSON.stringify(MOCK_DATA.circles),
-        field: 'circle',
-        complaintId: complaintId,
-      },
-    });
-  };
-
   const handleDivisionSelect = () => {
-    // Show all divisions from all circles
-    const allDivisions = Object.values(MOCK_DATA.divisions).flat();
     router.push({
       pathname: '/searchable-selection',
       params: {
         title: 'Select Division',
-        items: JSON.stringify(allDivisions),
+        items: JSON.stringify(MOCK_DATA.divisions),
         field: 'division',
         complaintId: complaintId,
       },
@@ -261,13 +258,13 @@ export default function AssignComplaintScreen() {
   };
 
   const handleSubDivisionSelect = () => {
-    // Show all sub-divisions from all divisions
-    const allSubDivisions = Object.values(MOCK_DATA.subDivisions).flat();
+    if (!division) return;
+    const subDivisions = (MOCK_DATA.subDivisions as any)[division.id] || [];
     router.push({
       pathname: '/searchable-selection',
       params: {
         title: 'Select Sub-Division',
-        items: JSON.stringify(allSubDivisions),
+        items: JSON.stringify(subDivisions),
         field: 'subDivision',
         complaintId: complaintId,
       },
@@ -275,11 +272,13 @@ export default function AssignComplaintScreen() {
   };
 
   const handleDepartmentSelect = () => {
+    if (!subDivision) return;
+    const departments = (MOCK_DATA.departments as any)[subDivision.id] || [];
     router.push({
       pathname: '/searchable-selection',
       params: {
         title: 'Select Department',
-        items: JSON.stringify(MOCK_DATA.departments),
+        items: JSON.stringify(departments),
         field: 'department',
         complaintId: complaintId,
       },
@@ -287,13 +286,13 @@ export default function AssignComplaintScreen() {
   };
 
   const handleDesignationSelect = () => {
-    // Show all designations from all departments
-    const allDesignations = Object.values(MOCK_DATA.designations).flat();
+    if (!department) return;
+    const designations = (MOCK_DATA.designations as any)[department.id] || [];
     router.push({
       pathname: '/searchable-selection',
       params: {
         title: 'Select Designation',
-        items: JSON.stringify(allDesignations),
+        items: JSON.stringify(designations),
         field: 'designation',
         complaintId: complaintId,
       },
@@ -301,13 +300,11 @@ export default function AssignComplaintScreen() {
   };
 
   const handleUserSelect = () => {
-    // Show all users from all designations
-    const allUsers = Object.values(MOCK_DATA.users).flat();
     router.push({
       pathname: '/searchable-selection',
       params: {
         title: 'Select User',
-        items: JSON.stringify(allUsers),
+        items: JSON.stringify(MOCK_DATA.allUsers),
         field: 'user',
         complaintId: complaintId,
       },
@@ -322,8 +319,34 @@ export default function AssignComplaintScreen() {
 
     setIsSubmitting(false);
 
+    // Determine the most specific assignment target
+    let assignedTo = '';
+    let assignedDesignation = '';
+
+    // Priority: User > Designation > Department > Sub-Division > Division
+    if (user) {
+      assignedTo = user.name;
+      assignedDesignation = user.designation || '';
+      setToastMessage(`Assigned to ${user.name}!`);
+    } else if (designation) {
+      assignedTo = designation.name;
+      assignedDesignation = 'Group';
+      setToastMessage(`Assigned to ${designation.name}!`);
+    } else if (department) {
+      assignedTo = department.name;
+      assignedDesignation = 'Department';
+      setToastMessage(`Assigned to ${department.name}!`);
+    } else if (subDivision) {
+      assignedTo = subDivision.name;
+      assignedDesignation = 'Sub-Division';
+      setToastMessage(`Assigned to ${subDivision.name}!`);
+    } else if (division) {
+      assignedTo = division.name;
+      assignedDesignation = 'Division';
+      setToastMessage(`Assigned to ${division.name}!`);
+    }
+
     // Show success toast
-    setToastMessage('Complaint assigned successfully!');
     setToastVisible(true);
 
     // Navigate back to complaint details after a brief delay
@@ -332,8 +355,8 @@ export default function AssignComplaintScreen() {
         pathname: '/complaint-details',
         params: {
           complaintId: complaintId,
-          assignedUser: user?.name,
-          assignedDesignation: user?.designation,
+          assignedUser: assignedTo,
+          assignedDesignation: assignedDesignation,
           showAssignmentToast: 'true',
         },
       });
@@ -349,28 +372,6 @@ export default function AssignComplaintScreen() {
       },
     });
   };
-
-  // Determine field statuses - All fields are always active
-  const getFieldStatus = (field: 'circle' | 'division' | 'subDivision' | 'department' | 'designation' | 'user'): StepStatus => {
-    switch (field) {
-      case 'circle':
-        return circle ? 'completed' : 'active';
-      case 'division':
-        return division ? 'completed' : 'active';
-      case 'subDivision':
-        return subDivision ? 'completed' : 'active';
-      case 'department':
-        return department ? 'completed' : 'active';
-      case 'designation':
-        return designation ? 'completed' : 'active';
-      case 'user':
-        return user ? 'completed' : 'active';
-      default:
-        return 'active';
-    }
-  };
-
-  const isAssignButtonEnabled = user !== null;
 
   return (
     <SafeAreaView style={styles.container}>
@@ -393,61 +394,63 @@ export default function AssignComplaintScreen() {
 
       {/* Content */}
       <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
-        {/* Assignment Form Card */}
+        {/* Section 1: Assign to a Group */}
         <View style={styles.card}>
-          <Text style={styles.cardTitle}>Assignment Details</Text>
-          <Text style={styles.cardSubtitle}>Select values for each field below</Text>
+          <Text style={styles.sectionTitle}>Assign to a Group</Text>
+          <Text style={styles.sectionSubtitle}>
+            Select organizational hierarchy (cascading selection)
+          </Text>
 
-          <StepItem
-            number={1}
-            title="Circle"
-            status={getFieldStatus('circle')}
-            selectedValue={circle?.name}
-            onPress={handleCircleSelect}
-          />
-          <View style={styles.stepSeparator} />
-
-          <StepItem
-            number={2}
-            title="Division"
-            status={getFieldStatus('division')}
-            selectedValue={division?.name}
+          <DropdownField
+            label="Division"
+            value={division?.name}
+            placeholder="Select a division"
             onPress={handleDivisionSelect}
           />
-          <View style={styles.stepSeparator} />
 
-          <StepItem
-            number={3}
-            title="Sub-Division"
-            status={getFieldStatus('subDivision')}
-            selectedValue={subDivision?.name}
+          <DropdownField
+            label="Sub-Division"
+            value={subDivision?.name}
+            placeholder="Select a sub-division"
             onPress={handleSubDivisionSelect}
+            disabled={!division}
           />
-          <View style={styles.stepSeparator} />
 
-          <StepItem
-            number={4}
-            title="Department"
-            status={getFieldStatus('department')}
-            selectedValue={department?.name}
+          <DropdownField
+            label="Department"
+            value={department?.name}
+            placeholder="Select a department"
             onPress={handleDepartmentSelect}
+            disabled={!subDivision}
           />
-          <View style={styles.stepSeparator} />
 
-          <StepItem
-            number={5}
-            title="Designation"
-            status={getFieldStatus('designation')}
-            selectedValue={designation?.name}
+          <DropdownField
+            label="Designation"
+            value={designation?.name}
+            placeholder="Select a designation"
             onPress={handleDesignationSelect}
+            disabled={!department}
           />
-          <View style={styles.stepSeparator} />
+        </View>
 
-          <StepItem
-            number={6}
-            title="User"
-            status={getFieldStatus('user')}
-            selectedValue={user?.name}
+        {/* OR Divider */}
+        <View style={styles.dividerContainer}>
+          <View style={styles.dividerLine} />
+          <Text style={styles.dividerText}>OR</Text>
+          <View style={styles.dividerLine} />
+        </View>
+
+        {/* Section 2: Assign to a Specific User */}
+        <View style={styles.card}>
+          <Text style={styles.sectionTitle}>Assign to a Specific User</Text>
+          <Text style={styles.sectionSubtitle}>
+            Search and select any user directly
+          </Text>
+
+          <DropdownField
+            label="User"
+            value={user?.name}
+            placeholder="Search for a user"
             onPress={handleUserSelect}
           />
         </View>
@@ -471,12 +474,12 @@ export default function AssignComplaintScreen() {
         <View style={styles.bottomSpacer} />
       </ScrollView>
 
-      {/* Assign Button */}
+      {/* Assign Button - Always Visible */}
       <View style={styles.footer}>
         <TouchableOpacity
-          style={[styles.assignButton, !isAssignButtonEnabled && styles.assignButtonDisabled]}
+          style={styles.assignButton}
           onPress={handleAssign}
-          disabled={!isAssignButtonEnabled || isSubmitting}
+          disabled={isSubmitting}
           activeOpacity={0.8}
         >
           {isSubmitting ? (
@@ -563,76 +566,77 @@ const styles = StyleSheet.create({
       },
     }),
   },
-  cardTitle: {
+  sectionTitle: {
     fontSize: 18,
     fontWeight: '700',
     color: COLORS.text,
     marginBottom: 6,
     letterSpacing: 0.2,
   },
-  cardSubtitle: {
+  sectionSubtitle: {
     fontSize: 14,
     fontWeight: '400',
     color: COLORS.textSecondary,
     marginBottom: 20,
     lineHeight: 20,
   },
-  stepItem: {
+  dropdownContainer: {
+    marginBottom: 16,
+  },
+  dropdownLabel: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: COLORS.textSecondary,
+    marginBottom: 8,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
+  dropdownButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    backgroundColor: COLORS.cardBackground,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    borderRadius: 12,
+    paddingHorizontal: 16,
     paddingVertical: 14,
-    paddingHorizontal: 8,
+    minHeight: 50,
   },
-  stepLeft: {
+  dropdownButtonDisabled: {
+    backgroundColor: COLORS.disabled,
+    opacity: 0.6,
+  },
+  dropdownText: {
+    flex: 1,
+    fontSize: 15,
+    fontWeight: '500',
+    color: COLORS.text,
+  },
+  dropdownPlaceholder: {
+    color: COLORS.textLight,
+    fontWeight: '400',
+  },
+  dropdownTextDisabled: {
+    color: COLORS.disabledText,
+  },
+  dividerContainer: {
     flexDirection: 'row',
     alignItems: 'center',
+    marginVertical: 24,
+    paddingHorizontal: 16,
+  },
+  dividerLine: {
     flex: 1,
-    gap: 14,
-  },
-  stepNumber: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 2,
-    borderColor: COLORS.border,
-    backgroundColor: COLORS.cardBackground,
-  },
-  stepNumberActive: {
-    backgroundColor: 'rgba(255, 152, 0, 0.1)',
-    borderColor: COLORS.primary,
-  },
-  stepNumberCompleted: {
-    backgroundColor: COLORS.success,
-    borderColor: COLORS.success,
-  },
-  stepContent: {
-    flex: 1,
-  },
-  stepTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: COLORS.text,
-    marginBottom: 4,
-  },
-  stepValue: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: COLORS.textSecondary,
-  },
-  stepPlaceholder: {
-    fontSize: 13,
-    fontWeight: '400',
-    color: COLORS.textLight,
-    fontStyle: 'italic',
-  },
-  stepSeparator: {
     height: 1,
     backgroundColor: COLORS.divider,
-    marginLeft: 58,
-    marginVertical: 2,
+  },
+  dividerText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: COLORS.textLight,
+    marginHorizontal: 16,
+    letterSpacing: 1,
   },
   commentLabel: {
     fontSize: 13,
@@ -687,10 +691,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     minHeight: 54,
-  },
-  assignButtonDisabled: {
-    backgroundColor: COLORS.disabledText,
-    opacity: 0.5,
   },
   assignButtonText: {
     fontSize: 16,

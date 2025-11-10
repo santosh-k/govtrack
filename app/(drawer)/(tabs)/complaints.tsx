@@ -359,11 +359,11 @@ const styles = StyleSheet.create({
   },
   filterPillsContainer: {
     paddingHorizontal: 16,
-    paddingVertical: 6,
+    paddingVertical: 8,
     gap: 8,
   },
   filterPill: {
-    paddingVertical: 4,
+    paddingVertical: 8,
     paddingHorizontal: 14,
     borderRadius: 16,
     backgroundColor: COLORS.background,
@@ -371,6 +371,7 @@ const styles = StyleSheet.create({
     borderColor: COLORS.border,
     alignItems: 'center',
     justifyContent: 'center',
+    minHeight: 32,
   },
   filterPillActive: {
     backgroundColor: COLORS.primary,
@@ -379,10 +380,10 @@ const styles = StyleSheet.create({
   customRangePill: {
     flexDirection: 'row',
     gap: 6,
-    paddingHorizontal: 10,
+    paddingHorizontal: 20,
   },
   filterPillText: {
-    fontSize: 12,
+    fontSize: 14,
     fontWeight: '600',
     color: COLORS.textSecondary,
   },
@@ -390,7 +391,7 @@ const styles = StyleSheet.create({
     color: COLORS.cardBackground,
   },
   scrollView: {
-    flex: 1,
+    flex: 0,
   },
   scrollContent: {
     padding: 16,
@@ -431,7 +432,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   statsInfo: {
-    flex: 2,
+    flex: 1,
     gap: 4,
   },
   statNumber: {

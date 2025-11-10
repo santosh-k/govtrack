@@ -146,65 +146,42 @@ interface StepItemProps {
 }
 
 function StepItem({ number, title, status, selectedValue, onPress }: StepItemProps) {
-  const isDisabled = status === 'disabled';
-  const isActive = status === 'active';
   const isCompleted = status === 'completed';
 
   return (
     <TouchableOpacity
-      style={[styles.stepItem, isDisabled && styles.stepItemDisabled]}
+      style={styles.stepItem}
       onPress={onPress}
-      disabled={isDisabled}
       activeOpacity={0.7}
     >
       <View style={styles.stepLeft}>
         <View
           style={[
             styles.stepNumber,
-            isActive && styles.stepNumberActive,
+            !isCompleted && styles.stepNumberActive,
             isCompleted && styles.stepNumberCompleted,
-            isDisabled && styles.stepNumberDisabled,
           ]}
         >
           {isCompleted ? (
             <Ionicons name="checkmark" size={18} color={COLORS.cardBackground} />
           ) : (
-            <Text
-              style={[
-                styles.stepNumberText,
-                isActive && styles.stepNumberTextActive,
-                isDisabled && styles.stepNumberTextDisabled,
-              ]}
-            >
-              {number}
-            </Text>
+            <Ionicons name="ellipse-outline" size={20} color={COLORS.primary} />
           )}
         </View>
         <View style={styles.stepContent}>
-          <Text
-            style={[
-              styles.stepTitle,
-              isActive && styles.stepTitleActive,
-              isDisabled && styles.stepTitleDisabled,
-            ]}
-          >
-            {title}
-          </Text>
-          {isCompleted && selectedValue && (
+          <Text style={styles.stepTitle}>{title}</Text>
+          {isCompleted && selectedValue ? (
             <Text style={styles.stepValue}>{selectedValue}</Text>
-          )}
-          {!isCompleted && !isDisabled && (
+          ) : (
             <Text style={styles.stepPlaceholder}>Tap to select</Text>
           )}
         </View>
       </View>
-      {!isDisabled && (
-        <Ionicons
-          name="chevron-forward"
-          size={20}
-          color={isActive ? COLORS.primary : COLORS.textSecondary}
-        />
-      )}
+      <Ionicons
+        name="chevron-forward"
+        size={20}
+        color={isCompleted ? COLORS.success : COLORS.primary}
+      />
     </TouchableOpacity>
   );
 }
@@ -222,7 +199,7 @@ export default function AssignComplaintScreen() {
   const [comment, setComment] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Handle selection from searchable screen - FIXED
+  // Handle selection from searchable screen - FIXED: No cascading resets
   useEffect(() => {
     if (params.selectedItem && params.selectedField) {
       const item = JSON.parse(params.selectedItem as string);
@@ -231,38 +208,26 @@ export default function AssignComplaintScreen() {
       switch (field) {
         case 'circle':
           setCircle(item);
-          setDivision(null);
-          setSubDivision(null);
-          setDepartment(null);
-          setDesignation(null);
-          setUser(null);
           break;
         case 'division':
           setDivision(item);
-          setSubDivision(null);
-          setDepartment(null);
-          setDesignation(null);
-          setUser(null);
           break;
         case 'subDivision':
           setSubDivision(item);
-          setDepartment(null);
-          setDesignation(null);
-          setUser(null);
           break;
         case 'department':
           setDepartment(item);
-          setDesignation(null);
-          setUser(null);
           break;
         case 'designation':
           setDesignation(item);
-          setUser(null);
           break;
         case 'user':
           setUser(item);
           break;
       }
+
+      // Clear params after processing
+      router.setParams({ selectedItem: undefined, selectedField: undefined });
     }
   }, [params.selectedItem, params.selectedField]);
 
@@ -278,26 +243,26 @@ export default function AssignComplaintScreen() {
   };
 
   const handleDivisionSelect = () => {
-    if (!circle) return;
-    const divisions = (MOCK_DATA.divisions as any)[circle.id] || [];
+    // Show all divisions from all circles
+    const allDivisions = Object.values(MOCK_DATA.divisions).flat();
     router.push({
       pathname: '/searchable-selection',
       params: {
         title: 'Select Division',
-        items: JSON.stringify(divisions),
+        items: JSON.stringify(allDivisions),
         field: 'division',
       },
     });
   };
 
   const handleSubDivisionSelect = () => {
-    if (!division) return;
-    const subDivisions = (MOCK_DATA.subDivisions as any)[division.id] || [];
+    // Show all sub-divisions from all divisions
+    const allSubDivisions = Object.values(MOCK_DATA.subDivisions).flat();
     router.push({
       pathname: '/searchable-selection',
       params: {
         title: 'Select Sub-Division',
-        items: JSON.stringify(subDivisions),
+        items: JSON.stringify(allSubDivisions),
         field: 'subDivision',
       },
     });
@@ -315,26 +280,26 @@ export default function AssignComplaintScreen() {
   };
 
   const handleDesignationSelect = () => {
-    if (!department) return;
-    const designations = (MOCK_DATA.designations as any)[department.id] || [];
+    // Show all designations from all departments
+    const allDesignations = Object.values(MOCK_DATA.designations).flat();
     router.push({
       pathname: '/searchable-selection',
       params: {
         title: 'Select Designation',
-        items: JSON.stringify(designations),
+        items: JSON.stringify(allDesignations),
         field: 'designation',
       },
     });
   };
 
   const handleUserSelect = () => {
-    if (!designation) return;
-    const users = (MOCK_DATA.users as any)[designation.id] || [];
+    // Show all users from all designations
+    const allUsers = Object.values(MOCK_DATA.users).flat();
     router.push({
       pathname: '/searchable-selection',
       params: {
         title: 'Select User',
-        items: JSON.stringify(users),
+        items: JSON.stringify(allUsers),
         field: 'user',
       },
     });
@@ -352,28 +317,23 @@ export default function AssignComplaintScreen() {
     });
   };
 
-  // Determine step statuses
-  const getStepStatus = (stepNumber: number): StepStatus => {
-    switch (stepNumber) {
-      case 1:
+  // Determine field statuses - All fields are always active
+  const getFieldStatus = (field: 'circle' | 'division' | 'subDivision' | 'department' | 'designation' | 'user'): StepStatus => {
+    switch (field) {
+      case 'circle':
         return circle ? 'completed' : 'active';
-      case 2:
-        if (!circle) return 'disabled';
+      case 'division':
         return division ? 'completed' : 'active';
-      case 3:
-        if (!division) return 'disabled';
+      case 'subDivision':
         return subDivision ? 'completed' : 'active';
-      case 4:
-        if (!subDivision) return 'disabled';
+      case 'department':
         return department ? 'completed' : 'active';
-      case 5:
-        if (!department) return 'disabled';
+      case 'designation':
         return designation ? 'completed' : 'active';
-      case 6:
-        if (!designation) return 'disabled';
+      case 'user':
         return user ? 'completed' : 'active';
       default:
-        return 'disabled';
+        return 'active';
     }
   };
 
@@ -400,12 +360,15 @@ export default function AssignComplaintScreen() {
 
       {/* Content */}
       <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
-        {/* Steps Card */}
+        {/* Assignment Form Card */}
         <View style={styles.card}>
+          <Text style={styles.cardTitle}>Assignment Details</Text>
+          <Text style={styles.cardSubtitle}>Select values for each field below</Text>
+
           <StepItem
             number={1}
-            title="Select Circle"
-            status={getStepStatus(1)}
+            title="Circle"
+            status={getFieldStatus('circle')}
             selectedValue={circle?.name}
             onPress={handleCircleSelect}
           />
@@ -413,8 +376,8 @@ export default function AssignComplaintScreen() {
 
           <StepItem
             number={2}
-            title="Select Division"
-            status={getStepStatus(2)}
+            title="Division"
+            status={getFieldStatus('division')}
             selectedValue={division?.name}
             onPress={handleDivisionSelect}
           />
@@ -422,8 +385,8 @@ export default function AssignComplaintScreen() {
 
           <StepItem
             number={3}
-            title="Select Sub-Division"
-            status={getStepStatus(3)}
+            title="Sub-Division"
+            status={getFieldStatus('subDivision')}
             selectedValue={subDivision?.name}
             onPress={handleSubDivisionSelect}
           />
@@ -431,8 +394,8 @@ export default function AssignComplaintScreen() {
 
           <StepItem
             number={4}
-            title="Select Department"
-            status={getStepStatus(4)}
+            title="Department"
+            status={getFieldStatus('department')}
             selectedValue={department?.name}
             onPress={handleDepartmentSelect}
           />
@@ -440,8 +403,8 @@ export default function AssignComplaintScreen() {
 
           <StepItem
             number={5}
-            title="Select Designation"
-            status={getStepStatus(5)}
+            title="Designation"
+            status={getFieldStatus('designation')}
             selectedValue={designation?.name}
             onPress={handleDesignationSelect}
           />
@@ -449,8 +412,8 @@ export default function AssignComplaintScreen() {
 
           <StepItem
             number={6}
-            title="Select User"
-            status={getStepStatus(6)}
+            title="User"
+            status={getFieldStatus('user')}
             selectedValue={user?.name}
             onPress={handleUserSelect}
           />
@@ -559,69 +522,59 @@ const styles = StyleSheet.create({
       },
     }),
   },
+  cardTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: COLORS.text,
+    marginBottom: 6,
+    letterSpacing: 0.2,
+  },
+  cardSubtitle: {
+    fontSize: 14,
+    fontWeight: '400',
+    color: COLORS.textSecondary,
+    marginBottom: 20,
+    lineHeight: 20,
+  },
   stepItem: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingVertical: 12,
+    paddingVertical: 14,
     paddingHorizontal: 8,
-  },
-  stepItemDisabled: {
-    opacity: 0.5,
   },
   stepLeft: {
     flexDirection: 'row',
     alignItems: 'center',
     flex: 1,
-    gap: 12,
+    gap: 14,
   },
   stepNumber: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: COLORS.disabled,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 2,
     borderColor: COLORS.border,
+    backgroundColor: COLORS.cardBackground,
   },
   stepNumberActive: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: 'rgba(255, 152, 0, 0.1)',
     borderColor: COLORS.primary,
   },
   stepNumberCompleted: {
     backgroundColor: COLORS.success,
     borderColor: COLORS.success,
   },
-  stepNumberDisabled: {
-    backgroundColor: COLORS.disabled,
-    borderColor: COLORS.divider,
-  },
-  stepNumberText: {
-    fontSize: 14,
-    fontWeight: '700',
-    color: COLORS.textSecondary,
-  },
-  stepNumberTextActive: {
-    color: COLORS.cardBackground,
-  },
-  stepNumberTextDisabled: {
-    color: COLORS.disabledText,
-  },
   stepContent: {
     flex: 1,
   },
   stepTitle: {
-    fontSize: 15,
+    fontSize: 16,
     fontWeight: '600',
     color: COLORS.text,
-    marginBottom: 2,
-  },
-  stepTitleActive: {
-    color: COLORS.primary,
-  },
-  stepTitleDisabled: {
-    color: COLORS.disabledText,
+    marginBottom: 4,
   },
   stepValue: {
     fontSize: 14,
@@ -637,7 +590,8 @@ const styles = StyleSheet.create({
   stepSeparator: {
     height: 1,
     backgroundColor: COLORS.divider,
-    marginLeft: 56,
+    marginLeft: 58,
+    marginVertical: 2,
   },
   commentLabel: {
     fontSize: 13,

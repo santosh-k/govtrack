@@ -50,6 +50,7 @@ export interface User {
   phone: string | null;
   isActive: boolean;
   address: string | null;
+  profile_image?: string;
   zone: Zone;
   division: Division;
   designations: Designation[];

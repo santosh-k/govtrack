@@ -20,6 +20,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
+import ApiManager from '@/src/services/ApiManager';
 
 const COLORS = {
   primary: '#2196F3', // Blue
@@ -314,18 +315,49 @@ export default function EditProfileScreen() {
     // Show loading state
     setIsLoading(true);
 
-    // Simulate API call
-    setTimeout(() => {
-      console.log('Saving profile data:', {
-        fullName, email, designation, department, address, profileImage
-      });
+    try {
+      // Create FormData for multipart/form-data request
+      const formData = new FormData();
+      
+      // Add form fields
+      formData.append('firstName', fullName.split(' ')[0] || '');
+      formData.append('lastName', fullName.split(' ').slice(1).join(' ') || '');
+      formData.append('email', email);
+      formData.append('phone', params.phone as string || '');
+      formData.append('address', address);
 
-      // Here you would upload the profile image to your server
-      // and save all the profile data
+      // Add profile image if it was changed
+      if (profileImage && profileImage !== originalProfileImage) {
+        const imageUri = Platform.OS === 'ios' 
+          ? profileImage.replace('file://', '') 
+          : profileImage;
+        
+        const fileName = profileImage.split('/').pop() || 'profile.jpg';
+        const mimeType = 'image/jpeg';
+
+        (formData as any).append('profile_img', {
+          uri: Platform.OS === 'ios' ? `file://${imageUri}` : imageUri,
+          name: fileName,
+          type: mimeType,
+        });
+      }
+
+      // Call API
+      const response = await ApiManager.getInstance().updateProfile(formData);
 
       setIsLoading(false);
-      showSuccessToast('Profile updated successfully');
-    }, 1500);
+      
+      if (response.success) {
+        showSuccessToast(response.message || 'Profile updated successfully');
+      } else {
+        Alert.alert('Error', response.message || 'Failed to update profile');
+      }
+    } catch (error) {
+      setIsLoading(false);
+      const errorMessage = error instanceof Error ? error.message : 'Failed to update profile';
+      Alert.alert('Error', errorMessage);
+      console.error('Profile update error:', error);
+    }
   };
 
   const handleBack = () => {

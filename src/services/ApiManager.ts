@@ -1,6 +1,6 @@
-import { LoginRequest, LoginResponse } from '../types/auth.types';
+import { LoginRequest, LoginResponse, User } from '../types/auth.types';
 import { store } from '../store';
-import { loginStart, loginSuccess, loginFailure, refreshTokenStart, refreshTokenSuccess, refreshTokenFailure } from '../store/authSlice';
+import { loginStart, loginSuccess, loginFailure, refreshTokenStart, refreshTokenSuccess, refreshTokenFailure, updateUser } from '../store/authSlice';
 
 class ApiManager {
   private static instance: ApiManager;
@@ -114,6 +114,45 @@ class ApiManager {
       const errorMessage = error instanceof Error ? error.message : 'An error occurred';
       store.dispatch(refreshTokenFailure(errorMessage));
       throw error;
+    }
+  }
+
+  public async updateProfile(formData: FormData): Promise<{ success: boolean; message: string; data: User }> {
+    try {
+      const token = this.getToken();
+
+      if (!token) {
+        throw new Error('No authentication token available');
+      }
+
+      const response = await fetch(`${this.baseUrl}/auth/profile`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          // Do NOT set Content-Type header when using FormData
+          // The browser will automatically set it with the correct boundary
+        },
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Profile update failed');
+      }
+
+      const data = await response.json();
+
+      if (data.success && data.data) {
+        // Update Redux store with new user data
+        store.dispatch(updateUser(data.data));
+
+        return data;
+      } else {
+        throw new Error('Profile update failed');
+      }
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'An error occurred';
+      throw new Error(errorMessage);
     }
   }
 

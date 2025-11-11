@@ -21,39 +21,60 @@ const authSlice = createSlice({
   name: 'auth',
   initialState,
   reducers: {
+    /** ---------------- LOGIN ---------------- */
     loginStart: (state) => {
       state.isLoading = true;
       state.error = null;
     },
-    loginSuccess: (state, action: PayloadAction<{ token: string; refreshToken: string; user: User }>) => {
+
+    loginSuccess: (
+      state,
+      action: PayloadAction<{ token: string; refreshToken: string; user: User }>
+    ) => {
       state.isLoading = false;
       state.token = action.payload.token;
       state.refreshToken = action.payload.refreshToken;
       state.user = action.payload.user;
       state.error = null;
     },
+
     loginFailure: (state, action: PayloadAction<string>) => {
       state.isLoading = false;
       state.error = action.payload;
     },
+
+    /** ---------------- LOGOUT ---------------- */
     logout: (state) => {
       state.token = null;
       state.refreshToken = null;
       state.user = null;
+      state.isLoading = false;
       state.error = null;
     },
-    updateUser: (state, action: PayloadAction<User>) => {
-      state.user = action.payload;
+
+    /** ---------------- UPDATE USER (MERGE FIELDS) ---------------- */
+    updateUser: (state, action: PayloadAction<Partial<User>>) => {
+      if (state.user) {
+        // Merge updated fields safely without losing other user data
+        state.user = { ...state.user, ...action.payload };
+      }
     },
+
+    /** ---------------- REFRESH TOKEN ---------------- */
     refreshTokenStart: (state) => {
       state.isLoading = true;
       state.error = null;
     },
-    refreshTokenSuccess: (state, action: PayloadAction<{ token: string; expiresIn: number }>) => {
+
+    refreshTokenSuccess: (
+      state,
+      action: PayloadAction<{ token: string; expiresIn: number }>
+    ) => {
       state.isLoading = false;
       state.token = action.payload.token;
       state.error = null;
     },
+
     refreshTokenFailure: (state, action: PayloadAction<string>) => {
       state.isLoading = false;
       state.error = action.payload;
@@ -61,5 +82,15 @@ const authSlice = createSlice({
   },
 });
 
-export const { loginStart, loginSuccess, loginFailure, logout, updateUser, refreshTokenStart, refreshTokenSuccess, refreshTokenFailure } = authSlice.actions;
+export const {
+  loginStart,
+  loginSuccess,
+  loginFailure,
+  logout,
+  updateUser,
+  refreshTokenStart,
+  refreshTokenSuccess,
+  refreshTokenFailure,
+} = authSlice.actions;
+
 export default authSlice.reducer;

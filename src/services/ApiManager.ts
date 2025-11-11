@@ -1,10 +1,18 @@
 import { LoginRequest, LoginResponse, User } from '../types/auth.types';
 import { store } from '../store';
-import { loginStart, loginSuccess, loginFailure, refreshTokenStart, refreshTokenSuccess, refreshTokenFailure, updateUser } from '../store/authSlice';
+import {
+  loginStart,
+  loginSuccess,
+  loginFailure,
+  refreshTokenStart,
+  refreshTokenSuccess,
+  refreshTokenFailure,
+  updateUser,
+} from '../store/authSlice';
 
 class ApiManager {
   private static instance: ApiManager;
-  private baseUrl: string = 'https://cms.pwddelhi.thesst.com/api';
+  private baseUrl = 'https://cms.pwddelhi.thesst.com/api';
 
   private constructor() {}
 
@@ -22,12 +30,15 @@ class ApiManager {
   private async fetchWithAuth(endpoint: string, options: RequestInit = {}): Promise<Response> {
     const headers = new Headers(options.headers);
     const token = this.getToken();
-    
+
     if (token) {
       headers.set('Authorization', `Bearer ${token}`);
     }
-    
-    headers.set('Content-Type', 'application/json');
+
+    // Only set JSON Content-Type if body is not FormData
+    if (!(options.body instanceof FormData)) {
+      headers.set('Content-Type', 'application/json');
+    }
 
     const response = await fetch(`${this.baseUrl}${endpoint}`, {
       ...options,
@@ -35,48 +46,58 @@ class ApiManager {
     });
 
     if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.message || 'An error occurred');
+      let errorMessage = 'An error occurred';
+      try {
+        const errorData = await response.json();
+        errorMessage = errorData.message || errorMessage;
+      } catch {
+        // ignore parse errors
+      }
+      throw new Error(errorMessage);
     }
 
     return response;
   }
 
+  /** ---------------- LOGIN ---------------- */
   public async login(credentials: LoginRequest): Promise<LoginResponse> {
     store.dispatch(loginStart());
 
     try {
-      const response = await this.fetchWithAuth('/auth/login', {
+      const response = await fetch(`${this.baseUrl}/auth/login`, {
         method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(credentials),
       });
 
-      const data = await response.json();
-      
-      if (data.success) {
-        store.dispatch(loginSuccess({
-          token: data.data.token,
-          refreshToken: data.data.refreshToken,
-          user: data.data.user,
-        }));
+      const data: LoginResponse = await response.json();
+
+      if (data.success && data.data) {
+        store.dispatch(
+          loginSuccess({
+            token: data.data.token,
+            refreshToken: data.data.refreshToken,
+            user: data.data.user,
+          })
+        );
       } else {
         store.dispatch(loginFailure('Login failed'));
       }
 
       return data;
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'An error occurred';
-      store.dispatch(loginFailure(errorMessage));
-      throw error;
+      const message = error instanceof Error ? error.message : 'An error occurred';
+      store.dispatch(loginFailure(message));
+      throw new Error(message);
     }
   }
 
+  /** ---------------- REFRESH TOKEN ---------------- */
   public async refreshToken(): Promise<{ token: string; expiresIn: number }> {
     store.dispatch(refreshTokenStart());
 
     try {
-      const state = store.getState();
-      const currentRefreshToken = state.auth.refreshToken;
+      const { refreshToken: currentRefreshToken } = store.getState().auth;
 
       if (!currentRefreshToken) {
         throw new Error('No refresh token available');
@@ -84,79 +105,83 @@ class ApiManager {
 
       const response = await fetch(`${this.baseUrl}/auth/refresh`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          refreshToken: currentRefreshToken,
-        }),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ refreshToken: currentRefreshToken }),
       });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Token refresh failed');
-      }
 
       const data = await response.json();
 
-      if (data.success) {
-        store.dispatch(refreshTokenSuccess({
-          token: data.data.token,
-          expiresIn: data.data.expiresIn,
-        }));
-
+      if (response.ok && data.success) {
+        store.dispatch(
+          refreshTokenSuccess({
+            token: data.data.token,
+            expiresIn: data.data.expiresIn,
+          })
+        );
         return data.data;
       } else {
         store.dispatch(refreshTokenFailure('Token refresh failed'));
-        throw new Error('Token refresh failed');
+        throw new Error(data.message || 'Token refresh failed');
       }
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'An error occurred';
-      store.dispatch(refreshTokenFailure(errorMessage));
-      throw error;
+      const message = error instanceof Error ? error.message : 'An error occurred';
+      store.dispatch(refreshTokenFailure(message));
+      throw new Error(message);
     }
   }
 
-  public async updateProfile(formData: FormData): Promise<{ success: boolean; message: string; data: User }> {
+  /** ---------------- UPDATE PROFILE ---------------- */
+  public async updateProfile(formData: FormData): Promise<{
+    success: boolean;
+    message: string;
+    data: User;
+  }> {
     try {
       const token = this.getToken();
-
-      if (!token) {
-        throw new Error('No authentication token available');
-      }
+      if (!token) throw new Error('No authentication token available');
 
       const response = await fetch(`${this.baseUrl}/auth/profile`, {
         method: 'PUT',
         headers: {
-          'Authorization': `Bearer ${token}`,
-          // Do NOT set Content-Type header when using FormData
-          // The browser will automatically set it with the correct boundary
+          Authorization: `Bearer ${token}`,
+          // ❌ No need for 'Content-Type' with FormData
         },
         body: formData,
       });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Profile update failed');
-      }
-
       const data = await response.json();
 
-      if (data.success && data.data) {
-        // Update Redux store with new user data
-        store.dispatch(updateUser(data.data));
-
-        return data;
-      } else {
-        throw new Error('Profile update failed');
+      if (!response.ok || !data.success) {
+        throw new Error(data.message || 'Profile update failed');
       }
+
+      if (data.success && data.data) {
+        // ✅ Only update editable user fields
+        const allowedFields: (keyof User)[] = [
+          'email',
+          'firstName',
+          'lastName',
+          'phone',
+          'address',
+          'profile_image',
+        ];
+
+        const filteredUser: Partial<User> = Object.keys(data.data)
+          .filter((key) => allowedFields.includes(key as keyof User))
+          .reduce((obj: Partial<User>, key) => {
+            obj[key as keyof User] = data.data[key];
+            return obj;
+          }, {});
+
+        store.dispatch(updateUser(filteredUser));
+      }
+
+      return data;
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'An error occurred';
-      throw new Error(errorMessage);
+      const message = error instanceof Error ? error.message : 'An error occurred';
+      throw new Error(message);
     }
   }
-
-  // Add other API methods here
 }
 
 export default ApiManager;

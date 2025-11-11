@@ -2,7 +2,7 @@
  * Complaint Dashboard - Pastel Grid Design v3.0
  * Two-column grid with vertically centered, pastel-colored cards
  */
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -17,6 +17,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { DrawerActions, useNavigation } from '@react-navigation/native';
+import ApiManager from '@/src/services/ApiManager';
 
 const COLORS = {
   background: '#F8F9FA',
@@ -87,6 +88,10 @@ export default function ComplaintDashboardScreen() {
   const [selectedEndDate, setSelectedEndDate] = useState<Date | null>(null);
   const [currentMonth, setCurrentMonth] = useState(new Date());
 
+  const [compStats, setStats] = useState<any | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
   // Simulated stats - would come from API based on selected filter
   const stats = {
     total: 1247,
@@ -98,6 +103,26 @@ export default function ComplaintDashboardScreen() {
     closed: 60,
   };
 
+  /** ✅ Fetch stats from API **/
+  const fetchStats = async (filter: string) => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const response = await ApiManager.getInstance().getStats(filter);
+      setStats(response.data);
+    } catch (err) {
+      console.error('Stats fetch error:', err);
+      setError(err instanceof Error ? err.message : 'Failed to load stats');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchStats('this_month');
+  }, []);
+
   const handleFilterChange = (filter: QuickFilter) => {
     if (filter === 'custom') {
       handleCustomDateRange();
@@ -105,6 +130,13 @@ export default function ComplaintDashboardScreen() {
     }
 
     setSelectedFilter(filter);
+    if (filter == 'month'){
+      fetchStats('this_month');
+    }else if(filter == 'week'){
+      fetchStats('this_week');
+    }else if (filter == 'today'){
+      fetchStats('today');
+    }
     // Update date range display based on filter
     const today = new Date();
     switch (filter) {

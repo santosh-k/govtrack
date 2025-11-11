@@ -112,13 +112,21 @@ export default function ComplaintDashboardScreen() {
   };
 
   /** ✅ Fetch stats from API **/
-  const fetchStats = async (filter: string) => {
+  const fetchStats = async (filter: string,startDate?: string,
+  endDate?: string) => {
     setLoading(true);
     setError(null);
 
     try {
-      const response = await ApiManager.getInstance().getStats(filter);
-      console.log('API Response:', response);
+      let response;
+      if (filter === 'custom'){
+         response = await ApiManager.getInstance().getStats(filter);
+         console.log('API Response:', response);
+      }else{
+        response = await ApiManager.getInstance().getStats(filter,startDate,endDate);
+        console.log('API Response:', response);
+      }
+      
       if (response?.success && response?.data) {
         setStats(response.data);
         console.log('Stats set:', response.data);
@@ -209,9 +217,13 @@ export default function ComplaintDashboardScreen() {
     if (selectedStartDate && selectedEndDate) {
       const startStr = selectedStartDate.toLocaleDateString('en-GB', { day: '2-digit', month: 'short' });
       const endStr = selectedEndDate.toLocaleDateString('en-GB', { day: '2-digit', month: 'short' });
+      const startStrApi = selectedStartDate.toISOString().split('T')[0];
+      const endStrApi = selectedEndDate.toISOString().split('T')[0];
       setDateRange(`${startStr} - ${endStr}`);
       setSelectedFilter('custom');
       setShowCalendarModal(false);
+      fetchStats('custom', startStrApi, endStrApi);
+    
     }
   };
 

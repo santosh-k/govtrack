@@ -184,35 +184,42 @@ class ApiManager {
   }
 
   /** ---------------- STATS (EXTERNAL ADMIN API) ---------------- */
-  public async getStats(filter: string): Promise<any> {
-    try {
-      const token = this.getToken();
-      if (!token) throw new Error('No authentication token available');
+  public async getStats(
+  filter: string,
+  startDate?: string,
+  endDate?: string
+): Promise<any> {
+  try {
+    const token = this.getToken();
+    if (!token) throw new Error('No authentication token available');
 
-      // The admin stats endpoint lives on a different host
-      const url = `https://admin.pwddelhi.thesst.com/api/pwdsewa/inspector/stats?filter=${encodeURIComponent(
-        filter
-      )}`;
-
-      const response = await fetch(url, {
-        method: 'GET',
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      });
-
-      const data = await response.json();
-
-      if (!response.ok || !data.success) {
-        throw new Error(data.message || 'Failed to fetch stats');
-      }
-
-      return data;
-    } catch (error) {
-      const message = error instanceof Error ? error.message : 'An error occurred';
-      throw new Error(message);
+    // Build query params dynamically
+    let query = `filter=${encodeURIComponent(filter)}`;
+    if (filter === 'custom' && startDate && endDate) {
+      query += `&start_date=${encodeURIComponent(startDate)}&end_date=${encodeURIComponent(endDate)}`;
     }
+
+    const url = `https://admin.pwddelhi.thesst.com/api/pwdsewa/inspector/stats?${query}`;
+
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+    });
+
+    const data = await response.json();
+
+    if (!response.ok || !data.success) {
+      throw new Error(data.message || 'Failed to fetch stats');
+    }
+
+    return data;
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'An error occurred';
+    throw new Error(message);
+  }
   }
 }
 
